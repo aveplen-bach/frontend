@@ -1,10 +1,10 @@
 <template>
-  <h1>Home</h1>
+  <h1>Sneaky login view</h1>
 </template>
 
 <script>
 export default {
-  name: "HomeView",
+  name: "SneakyLoginView",
 };
 </script>
 
