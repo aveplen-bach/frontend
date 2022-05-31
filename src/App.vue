@@ -1,84 +1,10 @@
 <template>
-  <!-- <div class="outer">
-    <div class="middle">
-      <div class="inner">
-        <main class="form-signin w-100 m-auto">
-          <form @submit.prevent="submit">
-            <div class="form-floating">
-              <input
-                v-model="data.email"
-                type="email"
-                class="form-control"
-                id="floatingInput"
-                placeholder="name@example.com"
-              />
-              <label for="floatingInput"> Email address </label>
-            </div>
-            <div class="form-floating">
-              <input
-                v-model="data.password"
-                type="password"
-                class="form-control"
-                id="floatingPassword"
-                placeholder="Password"
-              />
-              <label for="floatingPassword"> Password </label>
-            </div>
-            <button class="w-100 btn btn-lg btn-primary" type="submit">
-              Sign in
-            </button>
-
-            <h1>{{ auth ? "true" : "false" }}</h1>
-          </form>
-        </main>
-      </div>
-    </div>
-  </div> -->
-  <NavigationBar />
-  <router-view></router-view>
+  <component :is="NavBar" />
+  <router-view />
 </template>
 
-<script lang="ts">
-import { computed } from "@vue/reactivity";
-import { reactive } from "vue";
-import { useStore } from "vuex";
-import NavigationBar from "./components/NavigationBar.vue";
-
-export default {
-  components: { NavigationBar },
-
-  name: "App",
-
-  setup() {
-    const store = useStore();
-    const auth = computed(() => store.getters.isAuthenticated);
-    const data = reactive({
-      email: "",
-      password: "",
-    });
-
-    const submit = async () => {
-      try {
-        await fetch("http://localhost:8081/api/v1/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(data),
-        });
-
-        await store.dispatch("setAuthenticated", true);
-      } catch (e) {
-        await store.dispatch("setAuthenticated", false);
-      }
-    };
-
-    return {
-      data,
-      submit,
-      auth,
-    };
-  },
-};
+<script lang="ts" setup>
+import NavBar from "@/components/NavBar.vue";
 </script>
 
 <style>

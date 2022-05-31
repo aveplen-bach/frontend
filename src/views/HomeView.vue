@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <pre>
 
 
@@ -72,7 +73,15 @@ export default defineComponent({
     };
   },
 });
+=======
+  <div class="container-fluid" style="margin-top: 70px">
+    <div class="row"></div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+console.log();
+>>>>>>> 3bb55435b6833e84bf372fba8a9b3015ad38092b
 </script>
 
-<style>
-</style>
+<style></style>

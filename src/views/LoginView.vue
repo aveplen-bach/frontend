@@ -303,6 +303,7 @@ body {
 .form-label-group input::-ms-input-placeholder {
   color: transparent;
 }
+<<<<<<< HEAD
 
 .form-label-group input::-moz-placeholder {
   color: transparent;
@@ -324,3 +325,6 @@ body {
   color: #777;
 } */
 </style>
+=======
+</style>
+>>>>>>> 3bb55435b6833e84bf372fba8a9b3015ad38092b

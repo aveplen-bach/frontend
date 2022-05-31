@@ -28,5 +28,13 @@
   </nav>
 </template>
 
+<<<<<<< HEAD
 <script lang="ts" setup>
 </script>
+=======
+<script>
+export default {
+  name: "NavigationBar",
+};
+</script>
+>>>>>>> 3bb55435b6833e84bf372fba8a9b3015ad38092b
