@@ -4,7 +4,8 @@ import {
   base64ToArrayBuffer,
   encryptAesCbc,
   utf8ToArrayBuffer,
-} from "./cryptoutil";
+} from "@/tetatet/cryptoutil";
+import { LoginRequest, LoginResult } from "@/tetatet/model/login";
 
 enum LoginStage {
   CLIENT_CONN_INIT = 1,

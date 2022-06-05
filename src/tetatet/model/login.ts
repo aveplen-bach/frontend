@@ -1,10 +1,10 @@
-declare interface LoginRequest {
+export interface LoginRequest {
   username: string;
   password: string;
   photo: Blob;
 }
 
-declare interface LoginResult {
+export interface LoginResult {
   token: string;
   key: CryptoKey;
   iv: ArrayBuffer;
