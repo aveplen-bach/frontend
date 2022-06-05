@@ -1,5 +1,10 @@
-import axios from "axios";
-import { b64EncodeString, b64DecodeString } from "@/tetatet/pack";
+import { Axios } from "axios";
+import {
+  arrayBufferToBase64,
+  base64ToArrayBuffer,
+  encryptAesCbc,
+  utf8ToArrayBuffer,
+} from "./cryptoutil";
 
 enum LoginStage {
   CLIENT_CONN_INIT = 1,
@@ -8,29 +13,37 @@ enum LoginStage {
   SERVER_TOKEN,
 }
 
-interface LoginRequest {
-  username: string;
-  password: string;
-  photo: Blob;
-}
+export default async function login(
+  url: string,
+  req: LoginRequest
+): Promise<LoginResult> {
+  const client = new Axios({
+    url: url,
+  });
 
-export const login = async (url: string, req: LoginRequest) => {
-  const { salt, sessionId } = await getSalt(url, req.username);
-  const key = await deriveSessionKey(req.password, salt);
-  const { cipher, iv } = await encrypt(req.photo, key);
+  const key = await deriveSessionKey(
+    req.password,
+    await getSalt(client, req.username)
+  );
 
-  const token = await getToken(url, sessionId, cipher, iv, req.username);
-  alert(token);
+  const iv = generateIv();
+
+  const token = await getToken(
+    client,
+    req.username,
+    await encryptAesCbc(await req.photo.arrayBuffer(), key, iv),
+    iv
+  );
 
   return {
-    token,
     key,
     iv,
+    token,
   };
-};
+}
 
-const getSalt = async (url: string, username: string) => {
-  const res = await axios.post(url, {
+async function getSalt(client: Axios, username: string): Promise<ArrayBuffer> {
+  const res = await client.post("/", {
     stage: LoginStage.CLIENT_CONN_INIT,
     username: username,
   });
@@ -43,24 +56,53 @@ const getSalt = async (url: string, username: string) => {
     throw "server returned message with invalid stage";
   }
 
-  return {
-    salt: b64DecodeString(res.data?.mac),
-    sessionId: res.data?.sessionId,
-  };
-};
+  return base64ToArrayBuffer(res.data?.mac);
+}
 
-const getToken = async (
-  url: string,
-  sessionId: string,
-  cipher: string,
-  iv: string,
-  username: string
-) => {
-  const res = await axios.post(url, {
-    sessionId: sessionId,
+async function deriveSessionKey(
+  password: string,
+  salt: ArrayBuffer
+): Promise<CryptoKey> {
+  return await window.crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: salt,
+      iterations: 4096,
+      hash: "SHA-1",
+    },
+    await getKeyMaterial(password),
+    { name: "AES-CBC", length: 128 },
+    true,
+    ["encrypt", "decrypt"]
+  );
+}
+
+async function getKeyMaterial(password: string): Promise<CryptoKey> {
+  const passwordb = utf8ToArrayBuffer(password);
+
+  return await window.crypto.subtle.importKey(
+    "raw",
+    passwordb,
+    "PBKDF2",
+    false,
+    ["deriveBits", "deriveKey"]
+  );
+}
+
+function generateIv(): ArrayBuffer {
+  return window.crypto.getRandomValues(new Uint8Array(16)).buffer;
+}
+
+async function getToken(
+  client: Axios,
+  username: string,
+  ephoto: ArrayBuffer,
+  iv: ArrayBuffer
+): Promise<string> {
+  const res = await client.post("/", {
     stage: LoginStage.CLIENT_CRIDENTIALS,
-    cipher: cipher,
-    iv: iv,
+    cipher: arrayBufferToBase64(ephoto),
+    iv: arrayBufferToBase64(iv),
     username: username,
   });
 
@@ -73,66 +115,4 @@ const getToken = async (
   }
 
   return res.data?.token;
-};
-
-const deriveSessionKey = async (password: string, salt: ArrayBuffer) =>
-  await window.crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: salt,
-      iterations: 4096,
-      hash: "SHA-1",
-    },
-    await getKeyMaterial(getPasswordBytes(password)),
-    { name: "AES-CBC", length: 128 },
-    true,
-    ["encrypt", "decrypt"]
-  );
-
-const getPasswordBytes = (password: string) => {
-  const enc = new TextEncoder();
-  return enc.encode(password);
-};
-
-const getKeyMaterial = async (passwordBytes: Uint8Array) =>
-  window.crypto.subtle.importKey("raw", passwordBytes, "PBKDF2", false, [
-    "deriveBits",
-    "deriveKey",
-  ]);
-
-const toArrayLike = async (blob: Blob) => {
-  return await new Promise((resolve, reject) => {
-    const fr = new FileReader();
-    fr.onload = () => {
-      resolve(fr.result);
-    };
-    fr.onerror = reject;
-    fr.readAsArrayBuffer(blob);
-  });
-};
-
-// const generateIv = (bdata: Uint8Array) => bdata.slice(0, 16);
-const generateIv = () => window.crypto.getRandomValues(new Uint8Array(16));
-
-const encrypt = async (data: any, key: CryptoKey) => {
-  // const encoded = encode(data);
-  const arrayLike = await toArrayLike(data);
-  // eslint-disable-next-line
-  // @ts-ignore
-  const iv = generateIv(arrayLike);
-  const cipher = await window.crypto.subtle.encrypt(
-    {
-      name: "AES-CBC",
-      iv,
-    },
-    key,
-    // eslint-disable-next-line
-    // @ts-ignore
-    arrayLike
-  );
-
-  return {
-    cipher: b64EncodeString(cipher),
-    iv: b64EncodeString(iv),
-  };
-};
+}

@@ -6,7 +6,7 @@ import {
   utf8ToBase64,
   base64ToUtf8,
   arrayBufferToUtf8,
-} from "./cryptoutil";
+} from "../cryptoutil";
 
 export default class TokenService {
   private key: CryptoKey;
@@ -18,6 +18,8 @@ export default class TokenService {
   }
 
   public async NextToken(token: string): Promise<string> {
+    debugger;
+
     const prot = unpack(token);
     const raw = await unprotect(prot, this.key, this.iv);
 
@@ -27,6 +29,16 @@ export default class TokenService {
     const repacked = pack(reprot);
 
     return repacked;
+  }
+
+  public async ValidateNext(prev: string, next: string): Promise<boolean> {
+    const prevRaw = await unprotect(unpack(prev), this.key, this.iv);
+    const nextRaw = await unprotect(unpack(next), this.key, this.iv);
+
+    return (
+      prevRaw.Synchronization.syn + prevRaw.Synchronization.inc ==
+      nextRaw.Synchronization.syn
+    );
   }
 }
 
