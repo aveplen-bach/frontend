@@ -1,3 +1,4 @@
+import { Payload } from "vuex";
 import {
   decryptAesCbc,
   encryptAesCbc,
@@ -6,18 +7,29 @@ import {
   utf8ToBase64,
   base64ToUtf8,
   arrayBufferToUtf8,
-} from "../cryptoutil";
+} from "@/tetatet/cryptoutil";
+import { TokenProtected, TokenRaw } from "@/tetatet/model/token";
 
 export default class TokenService {
+  private current: string;
   private key: CryptoKey;
   private iv: ArrayBuffer;
 
-  constructor(key: CryptoKey, iv: ArrayBuffer) {
+  constructor(token: string, key: CryptoKey, iv: ArrayBuffer) {
+    this.current = token;
     this.key = key;
     this.iv = iv;
   }
 
-  public async NextToken(token: string): Promise<string> {
+  public getCurrent(): string {
+    return this.current;
+  }
+
+  public setCurrent(token: string) {
+    this.current = token;
+  }
+
+  public async next(token: string): Promise<string> {
     debugger;
 
     const prot = unpack(token);
@@ -31,8 +43,8 @@ export default class TokenService {
     return repacked;
   }
 
-  public async ValidateNext(prev: string, next: string): Promise<boolean> {
-    const prevRaw = await unprotect(unpack(prev), this.key, this.iv);
+  public async validateNext(next: string): Promise<boolean> {
+    const prevRaw = await unprotect(unpack(this.current), this.key, this.iv);
     const nextRaw = await unprotect(unpack(next), this.key, this.iv);
 
     return (
@@ -59,7 +71,7 @@ function unpack(token: string): TokenProtected {
 
   const syn = base64ToArrayBuffer(tokenParts[0]);
   const head = JSON.parse(base64ToUtf8(tokenParts[1]));
-  const plb: Payload = JSON.parse(base64ToUtf8(tokenParts[2]));
+  const plb = JSON.parse(base64ToUtf8(tokenParts[2]));
   const sign = base64ToArrayBuffer(tokenParts[3]);
 
   return {

@@ -94,10 +94,10 @@ export default defineComponent({
         ["encrypt", "decrypt"]
       );
 
-      ts = new TokenService(key, iv);
+      ts = new TokenService(token, key, iv);
       cs = new CryptoService(key, iv);
-      ps = new ProtectedService(ts, token);
-      as = new AdminService(ts, cs, token);
+      ps = new ProtectedService(ts);
+      as = new AdminService(ts, cs);
     };
 
     const open = async () => {

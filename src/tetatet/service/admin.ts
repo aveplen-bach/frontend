@@ -6,11 +6,10 @@ import TokenService from "./token";
 export default class AdminService {
   private client: Axios;
 
-  public constructor(ts: TokenService, cs: CryptoService, token: string) {
+  public constructor(ts: TokenService, cs: CryptoService) {
     this.client = patchProtect(
       patchAdmin(new Axios({ baseURL: "http://localhost:8081/api/admin" }), cs),
-      ts,
-      token
+      ts
     );
   }
 

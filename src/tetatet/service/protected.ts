@@ -5,11 +5,10 @@ import TokenService from "./token";
 export default class ProtectedService {
   private client: Axios;
 
-  public constructor(ts: TokenService, token: string) {
+  public constructor(ts: TokenService) {
     this.client = patchProtect(
       new Axios({ baseURL: "http://localhost:8081/api/protected" }),
-      ts,
-      token
+      ts
     );
   }
 

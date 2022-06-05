@@ -2,13 +2,7 @@ import { Axios } from "axios";
 import CryptoService from "./service/crypto";
 import TokenService from "./service/token";
 
-export function patchProtect(
-  inst: Axios,
-  ts: TokenService,
-  token: string
-): Axios {
-  let current = token;
-
+export function patchProtect(inst: Axios, ts: TokenService): Axios {
   inst.interceptors.request.use(async (config) => {
     debugger;
 
@@ -17,7 +11,7 @@ export function patchProtect(
       throw "authorization header already set";
     }
     config.headers = {
-      Authorization: `Bearer ${current}`,
+      Authorization: `Bearer ${ts.getCurrent()}`,
       ...config.headers,
     };
     return config;
@@ -30,10 +24,10 @@ export function patchProtect(
       config.data = JSON.parse(config.data);
     }
     const next = config.data?.next;
-    if (!ts.ValidateNext(current, next)) {
+    if (!ts.validateNext(next)) {
       throw "server not authorized";
     }
-    current = await ts.NextToken(next);
+    ts.setCurrent(await ts.next(next));
     config.data = config.data?.data;
     return config;
   });
