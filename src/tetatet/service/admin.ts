@@ -1,4 +1,5 @@
 import { Axios } from "axios";
+import { RegisterRequest } from "../model/register";
 import { User } from "../model/user";
 import { patchAdmin, patchProtect } from "../patch";
 import CryptoService from "./crypto";
@@ -17,5 +18,10 @@ export default class AdminService {
   public async getUsers(): Promise<User[]> {
     const res = await this.client.get("/user");
     return res.data?.users;
+  }
+
+  public async register(req: RegisterRequest): Promise<boolean> {
+    const res = await this.client.get("/register");
+    return res.status === 200;
   }
 }

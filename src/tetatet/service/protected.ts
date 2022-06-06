@@ -12,8 +12,13 @@ export default class ProtectedService {
     );
   }
 
-  public async isAuthenticated(): Promise<boolean> {
+  public async authenticated(): Promise<boolean> {
     const res = await this.client.get("/authenticated");
     return res.data?.authenticated;
+  }
+
+  public async logout(): Promise<boolean> {
+    const res = await this.client.get("/logout");
+    return res.status === 200;
   }
 }
