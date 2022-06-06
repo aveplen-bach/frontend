@@ -1,4 +1,5 @@
 import { Axios } from "axios";
+import { User } from "../model/user";
 import { patchAdmin, patchProtect } from "../patch";
 import CryptoService from "./crypto";
 import TokenService from "./token";
