@@ -74,12 +74,13 @@
 </template>
 
 <script lang="ts" setup>
+import { key } from "@/store";
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
-const store = useStore();
+const store = useStore(key);
 
 const users = computed(() => {
-  return store.state.users;
+  return store.state.dashboard.userList;
 });
 
 onMounted(() => {
