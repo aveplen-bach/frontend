@@ -1,6 +1,4 @@
 <template>
-  <div class="navbar_spacer"></div>
-
   <div class="container-fluid fs-5">
     <div class="row row-height">
       <div class="col-9 left">
@@ -47,10 +45,6 @@ export default defineComponent({
 .inner-padding {
   box-sizing: border-box;
   padding: 4px;
-}
-
-.navbar_spacer {
-  margin-top: 80px;
 }
 
 .row-height {
