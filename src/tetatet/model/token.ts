@@ -12,6 +12,7 @@ export interface Header {
 
 export interface Payload {
   userId: number;
+  admin: boolean;
 }
 
 export interface TokenRaw {
