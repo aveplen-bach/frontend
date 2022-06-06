@@ -4,8 +4,6 @@ import TokenService from "./service/token";
 
 export function patchProtect(inst: Axios, ts: TokenService): Axios {
   inst.interceptors.request.use(async (config) => {
-    debugger;
-
     config.headers = config.headers || {};
     if (config.headers && config.headers["Authorization"]) {
       throw "authorization header already set";
@@ -14,12 +12,12 @@ export function patchProtect(inst: Axios, ts: TokenService): Axios {
       Authorization: `Bearer ${ts.getCurrent()}`,
       ...config.headers,
     };
+    console.log("patch protect send");
+    console.log(ts.getCurrent());
     return config;
   });
 
   inst.interceptors.response.use(async (config) => {
-    debugger;
-
     if (typeof config.data !== "object") {
       config.data = JSON.parse(config.data);
     }
@@ -27,7 +25,9 @@ export function patchProtect(inst: Axios, ts: TokenService): Axios {
     if (!ts.validateNext(next)) {
       throw "server not authorized";
     }
+    console.log("patch protect recieve");
     ts.setCurrent(await ts.next(next));
+    console.log(ts.getCurrent());
     config.data = config.data?.data;
     return config;
   });
@@ -37,8 +37,6 @@ export function patchProtect(inst: Axios, ts: TokenService): Axios {
 
 export function patchAdmin(inst: Axios, cs: CryptoService): Axios {
   inst.interceptors.request.use(async (config) => {
-    debugger;
-
     if (config.data) {
       config.data = await cs.encrypt(JSON.stringify(config.data));
     }
@@ -46,8 +44,6 @@ export function patchAdmin(inst: Axios, cs: CryptoService): Axios {
   });
 
   inst.interceptors.response.use(async (config) => {
-    debugger;
-
     if (typeof config.data === "object") {
       config.data = JSON.parse(await cs.decrypt(config.data));
     } else {

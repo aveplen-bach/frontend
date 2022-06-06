@@ -29,8 +29,6 @@ export default class TokenService {
   }
 
   public async next(token: string): Promise<string> {
-    debugger;
-
     const prot = unpack(token);
     const raw = await unprotect(prot, this.key, this.iv);
 

@@ -13,9 +13,7 @@ export default class ProtectedService {
   }
 
   public async isAuthenticated(): Promise<boolean> {
-    debugger;
     const res = await this.client.get("/authenticated");
-    debugger;
     return res.data?.authenticated;
   }
 }
