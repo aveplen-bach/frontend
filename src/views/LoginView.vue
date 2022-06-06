@@ -89,10 +89,10 @@ import { key } from "@/store";
 import Camera from "simple-vue-camera";
 import { defineComponent, ref } from "vue";
 import { useStore } from "vuex";
-const store = useStore(key);
 
 export default defineComponent({
   setup() {
+    const store = useStore(key);
     const provided = ref(false);
     const cameraStarted = () => {
       provided.value = true;
@@ -110,6 +110,9 @@ export default defineComponent({
       //     photo: blob,
       //   });
       // }
+
+      store.dispatch("hello");
+
       try {
         await camera.value?.snapshot();
       } catch (err) {
