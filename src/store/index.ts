@@ -164,6 +164,10 @@ export default createStore<State>({
       commit("SERVICES_SET_CRYPTO_SERVICE", { cryptoService });
       commit("SERVICES_SET_PROTECTED_SERVICE", { protectedService });
       commit("SERVICES_SET_TOKEN_SERVICE", { tokenService });
+
+      commit("PROTECTED_SET_AUTHENTICATED", {
+        isAuthenticated: await protectedService.isAuthenticated(),
+      });
     },
 
     protectedFetchAuthenticated: async ({
@@ -193,7 +197,6 @@ export default createStore<State>({
     }) => {
       try {
         const users = await state.services.adminService?.getUsers();
-
         commit("DASHBOARD_USERLIST_SET_USERS", { users });
       } catch (err) {
         console.error("change this to be real error handling");
@@ -201,6 +204,6 @@ export default createStore<State>({
       }
     },
   },
-  modules: {},
   getters: {},
+  modules: {},
 });
