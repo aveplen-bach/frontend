@@ -303,28 +303,4 @@ body {
 .form-label-group input::-ms-input-placeholder {
   color: transparent;
 }
-<<<<<<< HEAD
-
-.form-label-group input::-moz-placeholder {
-  color: transparent;
-}
-
-.form-label-group input::placeholder {
-  color: transparent;
-}
-
-.form-label-group input:not(:placeholder-shown) {
-  padding-top: calc(var(--input-padding-y) + var(--input-padding-y) * (2 / 3));
-  padding-bottom: calc(var(--input-padding-y) / 3);
-}
-
-.form-label-group input:not(:placeholder-shown) ~ label {
-  padding-top: calc(var(--input-padding-y) / 3);
-  padding-bottom: calc(var(--input-padding-y) / 3);
-  font-size: 12px;
-  color: #777;
-} */
 </style>
-=======
-</style>
->>>>>>> 3bb55435b6833e84bf372fba8a9b3015ad38092b
