@@ -12,8 +12,6 @@ export function patchProtect(inst: Axios, ts: TokenService): Axios {
       Authorization: `Bearer ${ts.getCurrent()}`,
       ...config.headers,
     };
-    console.log("patch protect send");
-    console.log(ts.getCurrent());
     return config;
   });
 
@@ -25,9 +23,7 @@ export function patchProtect(inst: Axios, ts: TokenService): Axios {
     if (!ts.validateNext(next)) {
       throw "server not authorized";
     }
-    console.log("patch protect recieve");
     ts.setCurrent(await ts.next(next));
-    console.log(ts.getCurrent());
     config.data = config.data?.data;
     return config;
   });

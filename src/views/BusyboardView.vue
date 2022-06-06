@@ -25,7 +25,6 @@ import { useStore } from "vuex";
 export default defineComponent({
   methods: {
     rerender() {
-      console.log("rerender");
       this.$forceUpdate();
     },
   },
