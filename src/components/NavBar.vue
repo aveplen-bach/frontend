@@ -10,7 +10,11 @@
             :href="href"
             @click="navigate"
           >
-            <span class="fs-4">Tetatet</span>
+            <span class="fs-4"
+              >Tetatet ({{
+                isAuthenticated ? "authenticated" : "not authenticated"
+              }})</span
+            >
           </a>
         </router-link>
 
@@ -57,12 +61,18 @@
 </template>
 
 <script lang="ts" setup>
+import { key } from "@/store";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import { useStore } from "vuex";
+
+const store = useStore(key);
 
 const isHome = computed(() => useRoute().name == "home");
 const isAbout = computed(() => useRoute().name == "about");
 const isDashboard = computed(() => useRoute().name == "dashboard");
+
+const isAuthenticated = computed(() => store.state.protected.isAuthenticated);
 </script>
 
 <style>
