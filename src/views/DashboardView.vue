@@ -1,69 +1,171 @@
 <template>
-  <div class="container-fluid" style="margin-top: 70px">
+  <div class="container-fluid content">
     <div class="row">
       <nav
         id="sidebarMenu"
-        class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse"
+        class="col-md-3 col-lg-2 d-md-block bg-light collapse"
       >
         <div class="position-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="#">
-                Dashboard
+                Пользователи
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Orders</a>
+              <a class="nav-link" href="#">Настройки</a>
             </li>
           </ul>
         </div>
       </nav>
 
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-3 pb-3">
         <div class="row justify-content-between mb-2">
-          <h3 class="col-auto">Section title</h3>
+          <h3 class="col-auto">Пользователи</h3>
           <div class="col-md-6 d-flex">
             <input
               class="form-control me-2"
-              placeholder="Search"
+              placeholder="Поиск"
               aria-label="Search"
               v-model="search"
             />
-            <button class="btn btn-outline-success">Search</button>
+            <button class="btn btn-outline-success">Найти</button>
           </div>
         </div>
 
-        <div v-for="user in users.users" :key="user.id">
-          <div class="accordion accordion-flush" id="users-accordion-list">
-            <div v-if="JSON.stringify(user).includes(search)">
-              <div class="accordion-item">
-                <h2
-                  class="accordion-header"
-                  :id="`accordion-header-${user.id}`"
-                >
-                  <button
-                    class="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    :data-bs-target="`#accordion-${user.id}`"
-                    aria-expanded="false"
-                    :aria-controls="`accordion-${user.id}`"
-                  >
-                    <pre
-                      >{{ user.id }}|{{ user.username }}|{{ user.vector }}</pre
+        <div class="accordion" id="users-accordion-list">
+          <!-- ==================================== -->
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="accordion-header-add">
+              <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#accordion-add"
+                aria-expanded="false"
+                aria-controls="accordion-add"
+              >
+                Добавить пользователя
+              </button>
+            </h2>
+            <div
+              id="accordion-add"
+              class="accordion-collapse collapse"
+              aria-labelledby="accordion-header-add"
+              data-bs-parent="#users-accordion-list"
+            >
+              <div class="accordion-body">
+                <form>
+                  <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label"
+                      >Имя пользователя</label
                     >
-                  </button>
-                </h2>
-                <div
-                  :id="`accordion-${user.id}`"
-                  class="accordion-collapse collapse"
-                  :aria-labelledby="`accordion-header-${user.id}`"
-                  data-bs-parent="#users-accordion-list"
-                >
-                  <div class="accordion-body">
-                    <button class="btn btn-danger">Delete</button>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="exampleInputEmail1"
+                      aria-describedby="emailHelp"
+                    />
+                    <!-- TURN THIS INTO ERROR OUTPUT -->
+                    <!-- <div id="emailHelp" class="form-text">
+                      We'll never share your email with anyone else.
+                    </div> -->
                   </div>
-                </div>
+                  <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label"
+                      >Пароль</label
+                    >
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="exampleInputPassword1"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label"
+                      >Повтор пароля</label
+                    >
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="exampleInputPassword1"
+                    />
+                  </div>
+                  <div class="mb-3 form-check">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="exampleCheck1"
+                    />
+                    <label class="form-check-label" for="exampleCheck1"
+                      >Администратор</label
+                    >
+                  </div>
+                  <div class="mb-3">
+                    <label for="formFile" class="form-label">Фото</label>
+                    <input class="form-control" type="file" id="formFile" />
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    Добавить
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- ==================================== -->
+
+          <div
+            v-for="user in searchFound"
+            :key="user.id"
+            class="accordion-item"
+          >
+            <h2
+              class="accordion-header"
+              :id="`accordion-header-${user.userId}`"
+            >
+              <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                :data-bs-target="`#accordion-${user.userId}`"
+                aria-expanded="false"
+                :aria-controls="`accordion-${user.userId}`"
+              >
+                {{ user.userId }}. {{ user.username }}
+              </button>
+            </h2>
+            <div
+              :id="`accordion-${user.userId}`"
+              class="accordion-collapse collapse"
+              :aria-labelledby="`accordion-header-${user.userId}`"
+              data-bs-parent="#users-accordion-list"
+            >
+              <div class="accordion-body">
+                <table class="table table-light">
+                  <tbody>
+                    <tr>
+                      <th scope="row">Идентификатор</th>
+                      <td>{{ user.userId }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Имя пользователя</th>
+                      <td>{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Создан</th>
+                      <td>{{ user.createdAt }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Изменен</th>
+                      <td>{{ user.updatedAt }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Администратор</th>
+                      <td>{{ user.admin }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button class="btn btn-danger">Delete</button>
               </div>
             </div>
           </div>
@@ -79,155 +181,20 @@ import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 const store = useStore(key);
 
-const users = computed(() => {
-  return store.state.dashboard.userList;
-});
-
-onMounted(() => {
-  store.dispatch("fetchUsers");
-});
-
+// onMounted(() => {
+//   store.dispatch("fetchUsers");
+// });
 const search = ref("");
+
+const searchFound = computed(() =>
+  store.state.dashboard.userList.users.filter((user) =>
+    JSON.stringify(user).includes(search.value)
+  )
+);
 </script>
 
-<style>
-body {
-  font-size: 0.875rem;
-}
-
-.feather {
-  width: 16px;
-  height: 16px;
-}
-
-.sidebar {
-  position: fixed;
-  top: 70px;
-  bottom: 0;
-  /* rtl:remove */
-  left: 0;
-  z-index: 100;
-  /* Behind the navbar */
-  padding: 48px 0 0;
-  /* Height of navbar */
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 767.98px) {
-  .sidebar {
-    top: 5rem;
-  }
-}
-
-.sidebar-sticky {
-  position: relative;
-  top: 0;
-  height: calc(100vh - 48px);
-  padding-top: 0.5rem;
-  overflow-x: hidden;
-  overflow-y: auto;
-  /* Scrollable contents if viewport is shorter than content. */
-}
-
-.sidebar .nav-link {
-  font-weight: 500;
-  color: #333;
-}
-
-.sidebar .nav-link .feather {
-  margin-right: 4px;
-  color: #727272;
-}
-
-.sidebar .nav-link.active {
-  color: #2470dc;
-}
-
-.sidebar .nav-link:hover .feather,
-.sidebar .nav-link.active .feather {
-  color: inherit;
-}
-
-.sidebar-heading {
-  font-size: 0.75rem;
-}
-
-.navbar-brand {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  background-color: rgba(0, 0, 0, 0.25);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
-}
-
-.navbar .navbar-toggler {
-  top: 0.25rem;
-  right: 1rem;
-}
-
-.navbar .form-control {
-  padding: 0.75rem 1rem;
-}
-
-.form-control-dark {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.form-control-dark:focus {
-  border-color: transparent;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
-}
-
-.bd-placeholder-img {
-  font-size: 1.125rem;
-  text-anchor: middle;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-}
-
-@media (min-width: 768px) {
-  .bd-placeholder-img-lg {
-    font-size: 3.5rem;
-  }
-}
-
-.b-example-divider {
-  height: 3rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border: solid rgba(0, 0, 0, 0.15);
-  border-width: 1px 0;
-  box-shadow: inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1),
-    inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
-}
-
-.b-example-vr {
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 100vh;
-}
-
-.bi {
-  vertical-align: -0.125em;
-  fill: currentColor;
-}
-
-.nav-scroller {
-  position: relative;
-  z-index: 2;
-  height: 2.75rem;
-  overflow-y: hidden;
-}
-
-.nav-scroller .nav {
-  display: flex;
-  flex-wrap: nowrap;
-  padding-bottom: 1rem;
-  margin-top: -1px;
-  overflow-x: auto;
-  text-align: center;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
+<style lang="scss" scoped>
+.content {
+  min-height: calc(100vh - 150px);
 }
 </style>
