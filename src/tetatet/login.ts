@@ -1,4 +1,4 @@
-import { Axios } from "axios";
+import axios, { Axios } from "axios";
 import {
   arrayBufferToBase64,
   base64ToArrayBuffer,
@@ -18,19 +18,15 @@ export default async function login(
   url: string,
   req: LoginRequest
 ): Promise<LoginResult> {
-  const client = new Axios({
-    url: url,
-  });
-
   const key = await deriveSessionKey(
     req.password,
-    await getSalt(client, req.username)
+    await getSalt(url, req.username)
   );
 
   const iv = generateIv();
 
   const token = await getToken(
-    client,
+    url,
     req.username,
     await encryptAesCbc(await req.photo.arrayBuffer(), key, iv),
     iv
@@ -43,13 +39,14 @@ export default async function login(
   };
 }
 
-async function getSalt(client: Axios, username: string): Promise<ArrayBuffer> {
-  const res = await client.post("/", {
+async function getSalt(url: string, username: string): Promise<ArrayBuffer> {
+  const res = await axios.post(url, {
     stage: LoginStage.CLIENT_CONN_INIT,
     username: username,
   });
 
   if (res.status !== 200) {
+    console.error(res.data?.err);
     throw "server returned bas status code";
   }
 
@@ -95,12 +92,12 @@ function generateIv(): ArrayBuffer {
 }
 
 async function getToken(
-  client: Axios,
+  url: string,
   username: string,
   ephoto: ArrayBuffer,
   iv: ArrayBuffer
 ): Promise<string> {
-  const res = await client.post("/", {
+  const res = await axios.post(url, {
     stage: LoginStage.CLIENT_CRIDENTIALS,
     cipher: arrayBufferToBase64(ephoto),
     iv: arrayBufferToBase64(iv),
@@ -108,6 +105,7 @@ async function getToken(
   });
 
   if (res.status !== 200) {
+    console.error(res.data?.err);
     throw "server returned bas status code";
   }
 
