@@ -1,5 +1,7 @@
 export interface RegisterRequest {
   username: string;
   password: string;
-  photo: Blob;
+  repeat: string;
+  admin: boolean;
+  photo: ArrayBuffer;
 }

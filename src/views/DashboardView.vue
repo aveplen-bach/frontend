@@ -61,15 +61,12 @@
                       >Имя пользователя</label
                     >
                     <input
-                      type="email"
+                      type="text"
                       class="form-control"
                       id="exampleInputEmail1"
                       aria-describedby="emailHelp"
+                      v-model="regUsername"
                     />
-                    <!-- TURN THIS INTO ERROR OUTPUT -->
-                    <!-- <div id="emailHelp" class="form-text">
-                      We'll never share your email with anyone else.
-                    </div> -->
                   </div>
                   <div class="mb-3">
                     <label for="exampleInputPassword1" class="form-label"
@@ -78,7 +75,8 @@
                     <input
                       type="password"
                       class="form-control"
-                      id="exampleInputPassword1"
+                      id="exampleInputPassword11"
+                      v-model="regPassword"
                     />
                   </div>
                   <div class="mb-3">
@@ -89,6 +87,7 @@
                       type="password"
                       class="form-control"
                       id="exampleInputPassword1"
+                      v-model="regRepeat"
                     />
                   </div>
                   <div class="mb-3 form-check">
@@ -96,6 +95,7 @@
                       type="checkbox"
                       class="form-check-input"
                       id="exampleCheck1"
+                      v-model="regAdmin"
                     />
                     <label class="form-check-label" for="exampleCheck1"
                       >Администратор</label
@@ -103,11 +103,23 @@
                   </div>
                   <div class="mb-3">
                     <label for="formFile" class="form-label">Фото</label>
-                    <input class="form-control" type="file" id="formFile" />
+                    <input
+                      class="form-control"
+                      type="file"
+                      id="formFile"
+                      ref="regPhotos"
+                    />
                   </div>
-                  <button type="submit" class="btn btn-primary">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    @click.prevent="register"
+                  >
                     Добавить
                   </button>
+                  <div class="text-danger" v-if="error">
+                    {{ error }}
+                  </div>
                 </form>
               </div>
             </div>
@@ -177,20 +189,47 @@
 
 <script lang="ts" setup>
 import { key } from "@/store";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, Ref } from "vue";
 import { useStore } from "vuex";
 const store = useStore(key);
 
-// onMounted(() => {
-//   store.dispatch("fetchUsers");
-// });
-const search = ref("");
+onMounted(() => {
+  store.dispatch("adminUsers");
+});
 
+const error = computed(() => store.state.dashboard.error);
+
+const search = ref("");
 const searchFound = computed(() =>
   store.state.dashboard.userList.users.filter((user) =>
     JSON.stringify(user).includes(search.value)
   )
 );
+
+const regUsername = ref("");
+const regPassword = ref("");
+const regRepeat = ref("");
+const regAdmin = ref(false);
+const regPhotos: Ref = ref(null);
+
+const register = async () => {
+  const fr = new FileReader();
+  fr.onload = (e: ProgressEvent<FileReader>) => {
+    store.dispatch("adminRegister", {
+      username: regUsername.value,
+      password: regPassword.value,
+      repeat: regRepeat.value,
+      admin: regAdmin.value,
+      photo: e.target?.result,
+    });
+  };
+
+  try {
+    fr.readAsArrayBuffer(regPhotos.value.files[0]);
+  } catch (e) {
+    store.commit("DASHBOARD_SET_ERROR", { error: "необходимо выбрать файл" });
+  }
+};
 </script>
 
 <style lang="scss" scoped>
