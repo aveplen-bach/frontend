@@ -1,4 +1,5 @@
 import { Axios } from "axios";
+import { arrayBufferToBase64 } from "../cryptoutil";
 import { RegisterRequest } from "../model/register";
 import { User } from "../model/user";
 import { patchAdmin, patchProtect } from "../patch";
@@ -16,12 +17,19 @@ export default class AdminService {
   }
 
   public async getUsers(): Promise<User[]> {
-    const res = await this.client.get("/user");
+    const res = await this.client.post("/user");
     return res.data?.users;
   }
 
-  public async register(req: RegisterRequest): Promise<boolean> {
-    const res = await this.client.get("/register");
-    return res.status === 200;
+  public async register(req: RegisterRequest): Promise<void> {
+    const res = await this.client.post("/register", {
+      ...req,
+      photo: arrayBufferToBase64(req.photo),
+    });
+
+    if (res.status !== 200) {
+      console.error(res.data?.err);
+      throw res.data?.err;
+    }
   }
 }
