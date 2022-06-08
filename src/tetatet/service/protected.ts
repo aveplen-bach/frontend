@@ -15,14 +15,16 @@ export default class ProtectedService {
   public async authenticated(): Promise<boolean> {
     const res = await this.client.post("/authenticated");
     if (res.status !== 200) {
+      console.error(res.data?.err);
       throw "server returned bad status code";
     }
     return res.data?.authenticated;
   }
 
-  public async logout() {
+  public async logout(): Promise<void> {
     const res = await this.client.post("/logout");
     if (res.status !== 200) {
+      console.error(res.data?.err);
       throw "server returned bad status code";
     }
   }

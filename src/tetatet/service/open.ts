@@ -10,6 +10,7 @@ export default class OpenService {
   public async authenticated(): Promise<boolean> {
     const res = await this.client.post("/authenticated");
     if (res.status !== 200) {
+      console.error(res.data?.err);
       throw "server returned bad status code";
     }
     return res.data?.authenticated;
