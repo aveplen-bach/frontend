@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import AboutView from "@/views/AboutView.vue";
 import DashboardView from "@/views/DashboardView.vue";
-import BusyboardView from "@/views/BusyboardView.vue";
 import LoginView from "@/views/LoginView.vue";
 import ProtectedView from "@/views/ProtectedView.vue";
 
@@ -15,6 +14,9 @@ const routes: Array<RouteRecordRaw> = [
     path: "/dashboard",
     name: "dashboard",
     component: DashboardView,
+    meta: {
+      requiresAuth: false,
+    },
   },
   {
     path: "/login",
@@ -27,7 +29,8 @@ const routes: Array<RouteRecordRaw> = [
     component: ProtectedView,
   },
   {
-    path: "*",
+    path: "/:catchAll(.*)",
+    name: "NotFound",
     redirect: "/about",
   },
 ];
