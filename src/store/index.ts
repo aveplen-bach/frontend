@@ -212,7 +212,7 @@ export default createStore<State>({
     },
 
     async hello({ commit, dispatch }: { commit: Commit; dispatch: Dispatch }) {
-      const res = await axios.post("http://localhost:8081/api/open/hello", {
+      const res = await axios.post("http://localhost:8081/api/local/hello", {
         userId: new Date().getTime(),
       });
 
@@ -229,6 +229,8 @@ export default createStore<State>({
       );
 
       const tokenService = new TokenService(token, key, iv);
+      tokenService.setCurrent(await tokenService.next(token));
+
       const cryptoService = new CryptoService(key, iv);
       const adminService = new AdminService(tokenService, cryptoService);
       const protectedService = new ProtectedService(tokenService);
@@ -238,7 +240,7 @@ export default createStore<State>({
       commit("SERVICES_SET_PROTECTED_SERVICE", { protectedService });
       commit("SERVICES_SET_TOKEN_SERVICE", { tokenService });
 
-      dispatch("openAuthenicated");
+      dispatch("protectedAuthenticated");
     },
   },
   getters: {},
