@@ -16,6 +16,7 @@ export interface State {
   services: Services;
   protected: Protected;
   dashboard: Dashboard;
+  login: Login;
 }
 
 interface Services {
@@ -33,6 +34,11 @@ interface Protected {
 interface Dashboard {
   userList: UserList;
   settings: Settings;
+  error: string;
+}
+
+interface Login {
+  error: string;
 }
 
 interface UserList {
@@ -79,10 +85,22 @@ export default createStore<State>({
       settings: {
         ack: true,
       },
+      error: "",
+    },
+    login: {
+      error: "",
     },
   },
 
   mutations: {
+    LOGIN_SET_ERROR: (state, { error }: { error: string }) => {
+      state.login.error = error;
+    },
+
+    LOGIN_RESET_ERROR: (state) => {
+      state.login.error = "";
+    },
+
     SERVICES_SET_ADMIN_SERVICE: (
       state: State,
       { adminService }: { adminService: AdminService }
@@ -127,6 +145,14 @@ export default createStore<State>({
     DASHBOARD_USERLIST_SET_USERS: (state, { users }: { users: User[] }) => {
       state.dashboard.userList.users = users;
     },
+
+    DASHBOARD_SET_ERROR: (state, { error }: { error: string }) => {
+      state.dashboard.error = error;
+    },
+
+    DASHBOARD_RESET_ERROR: (state) => {
+      state.dashboard.error = "";
+    },
   },
 
   actions: {
@@ -134,19 +160,25 @@ export default createStore<State>({
       { commit, dispatch }: { commit: Commit; dispatch: Dispatch },
       req: LoginRequest
     ) {
-      const res = await login("http://localhost:8081/api/open/login", req);
+      try {
+        const res = await login("http://localhost:8081/api/open/login", req);
+        const tokenService = new TokenService(res.token, res.key, res.iv);
+        const cryptoService = new CryptoService(res.key, res.iv);
+        const adminService = new AdminService(tokenService, cryptoService);
+        const protectedService = new ProtectedService(tokenService);
 
-      const tokenService = new TokenService(res.token, res.key, res.iv);
-      const cryptoService = new CryptoService(res.key, res.iv);
-      const adminService = new AdminService(tokenService, cryptoService);
-      const protectedService = new ProtectedService(tokenService);
+        commit("SERVICES_SET_ADMIN_SERVICE", { adminService });
+        commit("SERVICES_SET_CRYPTO_SERVICE", { cryptoService });
+        commit("SERVICES_SET_PROTECTED_SERVICE", { protectedService });
+        commit("SERVICES_SET_TOKEN_SERVICE", { tokenService });
 
-      commit("SERVICES_SET_ADMIN_SERVICE", { adminService });
-      commit("SERVICES_SET_CRYPTO_SERVICE", { cryptoService });
-      commit("SERVICES_SET_PROTECTED_SERVICE", { protectedService });
-      commit("SERVICES_SET_TOKEN_SERVICE", { tokenService });
-
-      dispatch("openAuthenicated");
+        dispatch("openAuthenicated");
+        commit("LOGIN_RESET_ERROR");
+      } catch (e) {
+        commit("LOGIN_SET_ERROR", {
+          error: "ошибка при отправлении запроса",
+        });
+      }
     },
 
     async logout({
@@ -158,9 +190,9 @@ export default createStore<State>({
       state: State;
       dispatch: Dispatch;
     }) {
-      const success = await state.services.protectedService?.logout();
-
-      if (!success) {
+      try {
+        const success = await state.services.protectedService?.logout();
+      } catch (err) {
         return;
       }
 
@@ -201,14 +233,36 @@ export default createStore<State>({
     },
 
     async adminRegister(
-      { state, dispatch }: { state: State; dispatch: Dispatch },
+      {
+        state,
+        dispatch,
+        commit,
+      }: { state: State; dispatch: Dispatch; commit: Commit },
       req: RegisterRequest
     ) {
-      const success = await state.services.adminService?.register(req);
-      if (!success) {
-        console.log("could not register user");
+      if (!state.services.adminService) {
+        commit("DASHBOARD_SET_ERROR", {
+          error: "не авторизован",
+        });
+        return;
       }
-      dispatch("adminUsers");
+
+      if (req.password !== req.repeat) {
+        commit("DASHBOARD_SET_ERROR", {
+          error: "пароли не совпадают",
+        });
+        return;
+      }
+
+      try {
+        await state.services.adminService?.register(req);
+        dispatch("adminUsers");
+        commit("DASHBOARD_RESET_ERROR");
+      } catch (e) {
+        commit("DASHBOARD_SET_ERROR", {
+          error: "ошибка при отправлении запроса",
+        });
+      }
     },
 
     async hello({ commit, dispatch }: { commit: Commit; dispatch: Dispatch }) {

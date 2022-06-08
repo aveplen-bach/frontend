@@ -76,6 +76,9 @@
                   Вход
                 </button>
               </div>
+              <div class="text-danger text-center">
+                {{ error }}
+              </div>
             </form>
           </div>
         </div>
@@ -87,12 +90,13 @@
 <script lang="ts">
 import { key } from "@/store";
 import Camera from "simple-vue-camera";
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 
 export default defineComponent({
   setup() {
     const store = useStore(key);
+    const error = computed(() => store.state.login.error);
     const provided = ref(false);
     const cameraStarted = () => {
       provided.value = true;
@@ -102,21 +106,26 @@ export default defineComponent({
     const username = ref("");
     const password = ref("");
     const login = async () => {
-      // const blob = await camera.value?.snapshot();
-      // if (blob) {
-      //   store.dispatch("login", {
-      //     username: username,
-      //     password: password,
-      //     photo: blob,
-      //   });
-      // }
-
-      store.dispatch("hello");
-
       try {
-        await camera.value?.snapshot();
+        const blob = await camera.value?.snapshot(
+          { width: 800, height: 600 },
+          "image/jpeg",
+          1
+        );
+
+        if (!blob) {
+          store.commit("LOGIN_SET_ERROR", {
+            error: "ошибка при получении фото",
+          });
+        }
+
+        store.dispatch("login", {
+          username: username.value,
+          password: password.value,
+          photo: blob,
+        });
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
 
@@ -127,6 +136,7 @@ export default defineComponent({
       password,
       cameraStarted,
       provided,
+      error,
     };
   },
 });
