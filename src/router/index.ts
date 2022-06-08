@@ -22,11 +22,6 @@ const routes: Array<RouteRecordRaw> = [
     component: LoginView,
   },
   {
-    path: "/busyboard",
-    name: "busyboard",
-    component: BusyboardView,
-  },
-  {
     path: "/protected",
     name: "protected",
     component: ProtectedView,
