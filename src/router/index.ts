@@ -31,6 +31,10 @@ const routes: Array<RouteRecordRaw> = [
     name: "protected",
     component: ProtectedView,
   },
+  {
+    path: "*",
+    redirect: "/about",
+  },
 ];
 
 const router = createRouter({
