@@ -1,6 +1,6 @@
-import { authService } from "@/_services/auth";
+import { adminService } from "@/_services/admin";
 import { User } from "@/_services/model/user";
-import { Commit, Dispatch } from "vuex";
+import { Commit } from "vuex";
 
 export enum UsersStatus {
   loading = 1,
@@ -20,7 +20,7 @@ export const users = {
     users: [],
   },
 
-  actoins: {
+  actions: {
     async getUsers({ commit }: { commit: Commit }) {
       commit("getUsersRequest");
 

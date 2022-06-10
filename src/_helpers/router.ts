@@ -50,7 +50,7 @@ router.beforeEach(
     next: NavigationGuardNext
   ) => {
     const publicPages = ["/about", "/login"];
-    const authRequired = !publicPages.indexOf(to.path);
+    const authRequired = !(publicPages.indexOf(to.path) + 1);
     const loggedIn = localStorage.getItem("user");
 
     if (authRequired && !loggedIn) {

@@ -76,9 +76,9 @@
                   Вход
                 </button>
               </div>
-              <div class="text-danger text-center">
+              <!-- <div class="text-danger text-center">
                 {{ error }}
-              </div>
+              </div> -->
             </form>
           </div>
         </div>
@@ -88,15 +88,15 @@
 </template>
 
 <script lang="ts">
-import { key } from "@/store";
+import { key } from "@/_store";
 import Camera from "simple-vue-camera";
-import { computed, defineComponent, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 
 export default defineComponent({
   setup() {
     const store = useStore(key);
-    const error = computed(() => store.state.login.error);
+    // const error = computed(() => store.state.login.error);
     const provided = ref(false);
     const cameraStarted = () => {
       provided.value = true;
@@ -119,7 +119,7 @@ export default defineComponent({
           });
         }
 
-        store.dispatch("login", {
+        store.dispatch("auth/login", {
           username: username.value,
           password: password.value,
           photo: blob,
@@ -136,7 +136,7 @@ export default defineComponent({
       password,
       cameraStarted,
       provided,
-      error,
+      //   error,
     };
   },
 });

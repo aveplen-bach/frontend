@@ -9,8 +9,8 @@ async function access(): Promise<boolean> {
   try {
     const res = await axios.post(`${config.baseUrl}/protected/authenticated`);
     return res.data?.authenticated;
-  } catch (err) {
-    console.err(err);
-    throw err;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

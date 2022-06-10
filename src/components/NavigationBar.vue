@@ -9,11 +9,12 @@
           :href="href"
           @click="navigate"
         >
-          <span class="fs-4"
-            >Тетатет ({{
-              isAuthenticated ? "authenticated" : "not authenticated"
-            }})</span
-          >
+          <span class="fs-4">
+            Тетатет
+            <h1 v-if="loggingIn">LOGGING IN</h1>
+            <h1 v-else-if="loggedIn">LOGGED IN</h1>
+            <h1 v-else>NOT LOGGED IN</h1>
+          </span>
         </a>
       </router-link>
 
@@ -54,7 +55,7 @@
           </router-link>
         </li>
 
-        <li class="nav-item" v-if="!isAuthenticated">
+        <li class="nav-item" v-if="!loggedIn">
           <router-link to="/login" custom v-slot="{ href, navigate }">
             <a
               :href="href"
@@ -66,7 +67,7 @@
           </router-link>
         </li>
 
-        <li class="nav-item" v-if="isAuthenticated">
+        <li class="nav-item" v-else>
           <a href="#" class="nav-link" @click.prevent="logout">Выход</a>
         </li>
       </ul>
@@ -76,6 +77,7 @@
 
 <script lang="ts" setup>
 import { key } from "@/_store";
+import { AuthStatus } from "@/_store/auth.module";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
@@ -87,7 +89,12 @@ const isProtected = computed(() => useRoute().name == "protected");
 const isLogin = computed(() => useRoute().name == "login");
 const isDashboard = computed(() => useRoute().name == "dashboard");
 
-const isAuthenticated = computed(() => store.state.protected.isAuthenticated);
+const loggingIn = computed(
+  () => store.state.auth?.status === AuthStatus.loggingIn
+);
+const loggedIn = computed(
+  () => store.state.auth?.status === AuthStatus.loggedIn
+);
 
-const logout = () => store.dispatch("logout");
+const logout = () => store.dispatch("auth/logout");
 </script>

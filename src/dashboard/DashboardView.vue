@@ -117,9 +117,9 @@
                   >
                     Добавить
                   </button>
-                  <div class="text-danger" v-if="error">
+                  <!-- <div class="text-danger" v-if="error">
                     {{ error }}
-                  </div>
+                  </div> -->
                 </form>
               </div>
             </div>
@@ -188,7 +188,7 @@
 </template>
 
 <script lang="ts" setup>
-import { key } from "@/store";
+import { key } from "@/_store";
 import { ref, onMounted, computed, Ref } from "vue";
 import { useStore } from "vuex";
 const store = useStore(key);
@@ -197,16 +197,8 @@ onMounted(() => {
   store.dispatch("adminUsers");
 });
 
-const error = computed(() => store.state.dashboard.error);
-
 const search = ref("");
-const searchFound = computed(() =>
-  store.state.dashboard.userList
-    ? store.state.dashboard.userList.users.filter((user) =>
-        JSON.stringify(user).includes(search.value)
-      )
-    : []
-);
+const searchFound = computed(() => store.state.users?.users);
 
 const regUsername = ref("");
 const regPassword = ref("");

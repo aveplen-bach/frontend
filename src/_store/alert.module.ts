@@ -19,7 +19,7 @@ export const alert = {
     message: "",
   },
 
-  actoins: {
+  actions: {
     success({ commit }: { commit: Commit }, message: string) {
       commit("success", message);
     },

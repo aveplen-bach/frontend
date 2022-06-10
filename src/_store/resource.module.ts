@@ -20,31 +20,30 @@ export const users = {
     authenticated: false,
   },
 
-  actoins: {
+  actions: {
     async accessResource({ commit }: { commit: Commit }) {
-      commit("getUsersRequest");
-
-      try {
-        const users = await adminService.getUsers();
-        commit("getUsersSuccess", users);
-      } catch (error) {
-        console.error(error);
-        commit("getUsersFailure", error);
-      }
+      // commit("getUsersRequest");
+      //   try {
+      //     const users = await adminService.getUsers();
+      //     commit("getUsersSuccess", users);
+      //   } catch (error) {
+      //     console.error(error);
+      //     commit("getUsersFailure", error);
+      //   }
     },
   },
 
   mutations: {
-    accessResourceRequest(state: ResourceState) {
-      state.status = ResourceStatus.loading;
-    },
-    accessResourceSuccess(state: ResourceState, authenticated: boolean) {
-      state.status = ResourceStatus.loaded;
-      state.authenticated = authenticated;
-    },
-    accessResourceFailure(state: ResourceState, error: string) {
-      state.status = ResourceStatus.failure;
-      state.error = error;
-    },
+    // accessResourceRequest(state: ResourceState) {
+    //   state.status = ResourceStatus.loading;
+    // },
+    // accessResourceSuccess(state: ResourceState, authenticated: boolean) {
+    //   state.status = ResourceStatus.loaded;
+    //   state.authenticated = authenticated;
+    // },
+    // accessResourceFailure(state: ResourceState, error: string) {
+    //   state.status = ResourceStatus.failure;
+    //   state.error = error;
+    // },
   },
 };

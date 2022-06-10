@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "vuex";
-import { key } from "@/store";
+import { key } from "@/_store";
 import { computed } from "@vue/runtime-core";
 
 const store = useStore(key);
