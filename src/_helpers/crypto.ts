@@ -67,3 +67,47 @@ export function utf8ToArrayBuffer(utf8: string): ArrayBuffer {
 export function arrayBufferToUtf8(buffer: ArrayBuffer): string {
   return base64ToUtf8(arrayBufferToBase64(buffer));
 }
+
+export async function pbkdf2(
+  password: string,
+  salt: ArrayBuffer
+): Promise<CryptoKey> {
+  const keyMaterial = await window.crypto.subtle.importKey(
+    "raw",
+    utf8ToArrayBuffer(password),
+    "PBKDF2",
+    false,
+    ["deriveBits", "deriveKey"]
+  );
+
+  return await window.crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: salt,
+      iterations: 4096,
+      hash: "SHA-1",
+    },
+    keyMaterial,
+    { name: "AES-CBC", length: 128 },
+    true,
+    ["encrypt", "decrypt"]
+  );
+}
+
+export function randomIv(): ArrayBuffer {
+  return window.crypto.getRandomValues(new Uint8Array(16)).buffer;
+}
+
+export async function exportKey(raw: CryptoKey): Promise<string> {
+  return arrayBufferToBase64(await window.crypto.subtle.exportKey("raw", raw));
+}
+
+export async function importKey(b64key: string): Promise<CryptoKey> {
+  return await window.crypto.subtle.importKey(
+    "raw",
+    base64ToArrayBuffer(b64key),
+    "AES-CBC",
+    true,
+    ["encrypt", "decrypt"]
+  );
+}

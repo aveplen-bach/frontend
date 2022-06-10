@@ -1,8 +1,6 @@
 import { Axios } from "axios";
-import CryptoService from "./service/crypto";
-import TokenService from "./service/token";
 
-export function patchProtect(inst: Axios, ts: TokenService): Axios {
+export function patchProtect(inst: Axios): Axios {
   inst.interceptors.request.use(async (config) => {
     config.headers = config.headers || {};
     if (config.headers && config.headers["Authorization"]) {

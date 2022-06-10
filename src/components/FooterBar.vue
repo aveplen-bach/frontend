@@ -4,6 +4,13 @@
       <h6 class="mt mb-md-0">
         Распространяется под лицензией MIT. Пленкин Алексей, 2022.
       </h6>
+
+      <span
+        v-if="!alertIsNone"
+        :class="{ 'text-success': alertIsSuccess, 'text-danger': alertIsError }"
+        >{{ alertText }}</span
+      >
+
       <a class="nav-link" href="https://github.com/aveplen-bach">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -20,3 +27,22 @@
     </div>
   </nav>
 </template>
+
+<script lang="ts" setup>
+import { key } from "@/_store";
+import { AlertType } from "@/_store/alert.module";
+import { computed } from "vue";
+import { useStore } from "vuex";
+
+const store = useStore(key);
+
+const alertIsNone = computed(() => store.state.alert?.type === AlertType.none);
+const alertIsError = computed(
+  () => store.state.alert?.type === AlertType.error
+);
+const alertIsSuccess = computed(
+  () => store.state.alert?.type === AlertType.success
+);
+
+const alertText = computed(() => store.state.alert?.message);
+</script>

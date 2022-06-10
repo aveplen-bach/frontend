@@ -1,57 +1,15 @@
+import { TokenProtected, TokenRaw } from "@/_services/model/token";
 import {
-  decryptAesCbc,
-  encryptAesCbc,
   arrayBufferToBase64,
-  base64ToArrayBuffer,
   utf8ToBase64,
+  base64ToArrayBuffer,
   base64ToUtf8,
+  encryptAesCbc,
+  decryptAesCbc,
   arrayBufferToUtf8,
-} from "@/tetatet/cryptoutil";
-import { TokenProtected, TokenRaw } from "@/tetatet/model/token";
+} from "@/_helpers/crypto";
 
-export default class TokenService {
-  private current: string;
-  private key: CryptoKey;
-  private iv: ArrayBuffer;
-
-  constructor(token: string, key: CryptoKey, iv: ArrayBuffer) {
-    this.current = token;
-    this.key = key;
-    this.iv = iv;
-  }
-
-  public getCurrent(): string {
-    return this.current;
-  }
-
-  public setCurrent(token: string) {
-    this.current = token;
-  }
-
-  public async next(token: string): Promise<string> {
-    const prot = unpack(token);
-    const raw = await unprotect(prot, this.key, this.iv);
-
-    raw.Synchronization.syn += raw.Synchronization.inc;
-
-    const reprot = await protect(raw, this.key, this.iv);
-    const repacked = pack(reprot);
-
-    return repacked;
-  }
-
-  public async validateNext(next: string): Promise<boolean> {
-    const prevRaw = await unprotect(unpack(this.current), this.key, this.iv);
-    const nextRaw = await unprotect(unpack(next), this.key, this.iv);
-
-    return (
-      prevRaw.Synchronization.syn + prevRaw.Synchronization.inc ==
-      nextRaw.Synchronization.syn
-    );
-  }
-}
-
-function pack(prot: TokenProtected): string {
+export function pack(prot: TokenProtected): string {
   const b64Syn = arrayBufferToBase64(prot.SynchronizationBytes);
   const b64Head = utf8ToBase64(JSON.stringify(prot.Header));
   const b64Pld = utf8ToBase64(JSON.stringify(prot.Payload));
@@ -60,7 +18,7 @@ function pack(prot: TokenProtected): string {
   return [b64Syn, b64Head, b64Pld, b64Sign].join(".");
 }
 
-function unpack(token: string): TokenProtected {
+export function unpack(token: string): TokenProtected {
   const tokenParts = token.split(".");
   if (tokenParts.length != 4) {
     throw "token is damaged or of wrong format";
@@ -79,7 +37,7 @@ function unpack(token: string): TokenProtected {
   };
 }
 
-async function protect(
+export async function protect(
   raw: TokenRaw,
   key: CryptoKey,
   iv: ArrayBuffer
@@ -95,7 +53,7 @@ async function protect(
   };
 }
 
-async function unprotect(
+export async function unprotect(
   prot: TokenProtected,
   key: CryptoKey,
   iv: ArrayBuffer

@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts" setup>
-import { key } from "@/store";
+import { key } from "@/_store";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
