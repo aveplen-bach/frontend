@@ -10,10 +10,11 @@
           @click="navigate"
         >
           <span class="fs-4">
-            Тетатет
-            <h1 v-if="loggingIn">LOGGING IN</h1>
-            <h1 v-else-if="loggedIn">LOGGED IN</h1>
-            <h1 v-else>NOT LOGGED IN</h1>
+            Тетатет (
+            <span v-if="loggingIn">logging in</span>
+            <span v-else-if="loggedIn">logged in</span>
+            <span v-else>not logged in</span>
+            )
           </span>
         </a>
       </router-link>
