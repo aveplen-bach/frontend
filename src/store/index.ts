@@ -65,22 +65,7 @@ export default createStore<State>({
     },
     dashboard: {
       userList: {
-        users: [
-          {
-            userId: 1,
-            username: "username1",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            admin: false,
-          },
-          {
-            userId: 2,
-            username: "username2",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            admin: true,
-          },
-        ],
+        users: [],
       },
       settings: {
         ack: true,
@@ -161,7 +146,10 @@ export default createStore<State>({
       req: LoginRequest
     ) {
       try {
-        const res = await login("http://localhost:8081/api/open/login", req);
+        const res = await login(
+          "http://192.168.10.101:8081/api/open/login",
+          req
+        );
         const tokenService = new TokenService(res.token, res.key, res.iv);
         const cryptoService = new CryptoService(res.key, res.iv);
         const adminService = new AdminService(tokenService, cryptoService);
@@ -172,7 +160,7 @@ export default createStore<State>({
         commit("SERVICES_SET_PROTECTED_SERVICE", { protectedService });
         commit("SERVICES_SET_TOKEN_SERVICE", { tokenService });
 
-        dispatch("openAuthenicated");
+        dispatch("protectedAuthenticated");
         commit("LOGIN_RESET_ERROR");
       } catch (e) {
         commit("LOGIN_SET_ERROR", {
@@ -259,6 +247,7 @@ export default createStore<State>({
         dispatch("adminUsers");
         commit("DASHBOARD_RESET_ERROR");
       } catch (e) {
+        console.error(e);
         commit("DASHBOARD_SET_ERROR", {
           error: "ошибка при отправлении запроса",
         });
@@ -266,9 +255,12 @@ export default createStore<State>({
     },
 
     async hello({ commit, dispatch }: { commit: Commit; dispatch: Dispatch }) {
-      const res = await axios.post("http://localhost:8081/api/local/hello", {
-        userId: new Date().getTime(),
-      });
+      const res = await axios.post(
+        "http://192.168.10.101:8081/api/local/hello",
+        {
+          userId: new Date().getTime(),
+        }
+      );
 
       const token = res.data?.token;
       const keyb = base64ToArrayBuffer(res.data?.key);

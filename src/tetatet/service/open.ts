@@ -4,7 +4,7 @@ export default class OpenService {
   private client: Axios;
 
   public constructor() {
-    this.client = new Axios({ baseURL: "http://localhost:8081/api/open" });
+    this.client = new Axios({ baseURL: "http://192.168.10.101:8081/api/open" });
   }
 
   public async authenticated(): Promise<boolean> {

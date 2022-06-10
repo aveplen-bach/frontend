@@ -7,7 +7,7 @@ export default class ProtectedService {
 
   public constructor(ts: TokenService) {
     this.client = patchProtect(
-      new Axios({ baseURL: "http://localhost:8081/api/protected" }),
+      new Axios({ baseURL: "http://192.168.10.101:8081/api/protected" }),
       ts
     );
   }

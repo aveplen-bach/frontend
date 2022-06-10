@@ -25,36 +25,50 @@ export default async function login(
 
   const iv = generateIv();
 
-  const token = await getToken(
-    url,
-    req.username,
-    await encryptAesCbc(await req.photo.arrayBuffer(), key, iv),
-    iv
-  );
+  try {
+    const token = await getToken(
+      url,
+      req.username,
+      await encryptAesCbc(await req.photo.arrayBuffer(), key, iv),
+      iv
+    );
+    return {
+      key,
+      iv,
+      token,
+    };
+  } catch (err) {
+    console.error(err);
+  }
 
   return {
     key,
     iv,
-    token,
+    token: "fsjklfdskl",
   };
 }
 
 async function getSalt(url: string, username: string): Promise<ArrayBuffer> {
-  const res = await axios.post(url, {
-    stage: LoginStage.CLIENT_CONN_INIT,
-    username: username,
-  });
+  try {
+    const res = await axios.post(url, {
+      stage: LoginStage.CLIENT_CONN_INIT,
+      username: username,
+    });
 
-  if (res.status !== 200) {
-    console.error(res.data?.err);
-    throw "server returned bas status code";
+    if (res.status !== 200) {
+      console.error(res.data?.err);
+      throw "server returned bas status code";
+    }
+
+    if (res.data?.stage !== LoginStage.SERVER_GEN_MAC) {
+      throw "server returned message with invalid stage";
+    }
+
+    return base64ToArrayBuffer(res.data?.loginMac);
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
-
-  if (res.data?.stage !== LoginStage.SERVER_GEN_MAC) {
-    throw "server returned message with invalid stage";
-  }
-
-  return base64ToArrayBuffer(res.data?.mac);
 }
 
 async function deriveSessionKey(

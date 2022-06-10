@@ -201,9 +201,11 @@ const error = computed(() => store.state.dashboard.error);
 
 const search = ref("");
 const searchFound = computed(() =>
-  store.state.dashboard.userList.users.filter((user) =>
-    JSON.stringify(user).includes(search.value)
-  )
+  store.state.dashboard.userList
+    ? store.state.dashboard.userList.users.filter((user) =>
+        JSON.stringify(user).includes(search.value)
+      )
+    : []
 );
 
 const regUsername = ref("");

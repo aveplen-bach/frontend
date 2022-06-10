@@ -11,7 +11,10 @@ export default class AdminService {
 
   public constructor(ts: TokenService, cs: CryptoService) {
     this.client = patchProtect(
-      patchAdmin(new Axios({ baseURL: "http://localhost:8081/api/admin" }), cs),
+      patchAdmin(
+        new Axios({ baseURL: "http://192.168.10.101:8081/api/admin" }),
+        cs
+      ),
       ts
     );
   }
