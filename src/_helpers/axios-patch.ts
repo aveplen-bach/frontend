@@ -13,6 +13,7 @@ import { protect, pack, unpack, unprotect } from "./token";
 
 export const patchRequest = async (config: AxiosRequestConfig) => {
   console.log(config);
+  debugger;
 
   config.url = config.url || "";
 
@@ -23,19 +24,19 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
     return config;
   }
 
-  const user = localStorage.getItem("user");
-  if (!user) {
+  const authentication = localStorage.getItem("authentication");
+  if (!authentication) {
     throw "not authenticated";
   }
 
-  const userp: Authentication = JSON.parse(user);
-  const key = await importKey(userp.key);
-  const iv = base64ToArrayBuffer(userp.iv);
+  const authp: Authentication = JSON.parse(authentication);
+  const key = await importKey(authp.key);
+  const iv = base64ToArrayBuffer(authp.iv);
 
-  userp.raw.Synchronization.syn += userp.raw.Synchronization.inc;
-  userp.raw.Synchronization.inc = Math.random() % 1000;
+  authp.raw.Syn.syn += authp.raw.Syn.inc;
+  authp.raw.Syn.inc = Math.random() % 1000;
 
-  const protectedd = await protect(userp.raw, key, iv);
+  const protectedd = await protect(authp.raw, key, iv);
   const packed = pack(protectedd);
 
   config.headers = config.headers || {};
@@ -74,14 +75,14 @@ export const patchResponse = async (response: AxiosResponse) => {
     return response;
   }
 
-  const user = localStorage.getItem("user");
-  if (!user) {
+  const authentication = localStorage.getItem("authentication");
+  if (!authentication) {
     throw "not authenticated";
   }
 
-  const userp: Authentication = JSON.parse(user);
-  const key = await importKey(userp.key);
-  const iv = base64ToArrayBuffer(userp.iv);
+  const authp: Authentication = JSON.parse(authentication);
+  const key = await importKey(authp.key);
+  const iv = base64ToArrayBuffer(authp.iv);
 
   const next = response.data?.next;
   if (!next) {
@@ -91,14 +92,11 @@ export const patchResponse = async (response: AxiosResponse) => {
   const unpacked = unpack(next);
   const unprotected = await unprotect(unpacked, key, iv);
 
-  if (
-    unprotected.Synchronization.syn !==
-    userp.raw.Synchronization.syn + userp.raw.Synchronization.inc
-  ) {
+  if (unprotected.Syn.syn !== authp.raw.Syn.syn + authp.raw.Syn.inc) {
     throw "server returned incorrect syn";
   }
 
-  userp.raw.Synchronization = unprotected.Synchronization;
+  authp.raw.Syn = unprotected.Syn;
 
   response.data = JSON.parse(
     arrayBufferToUtf8(

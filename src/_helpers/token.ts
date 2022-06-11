@@ -10,10 +10,10 @@ import {
 } from "@/_helpers/crypto";
 
 export function pack(prot: TokenProtected): string {
-  const b64Syn = arrayBufferToBase64(prot.SynchronizationBytes);
+  const b64Syn = arrayBufferToBase64(prot.SynBytes);
   const b64Head = utf8ToBase64(JSON.stringify(prot.Header));
-  const b64Pld = utf8ToBase64(JSON.stringify(prot.Payload));
-  const b64Sign = arrayBufferToBase64(prot.SignatureBytes);
+  const b64Pld = utf8ToBase64(JSON.stringify(prot.Pld));
+  const b64Sign = arrayBufferToBase64(prot.SignBytes);
 
   return [b64Syn, b64Head, b64Pld, b64Sign].join(".");
 }
@@ -30,10 +30,10 @@ export function unpack(token: string): TokenProtected {
   const sign = base64ToArrayBuffer(tokenParts[3]);
 
   return {
-    SynchronizationBytes: syn,
+    SynBytes: syn,
     Header: head,
-    Payload: plb,
-    SignatureBytes: sign,
+    Pld: plb,
+    SignBytes: sign,
   };
 }
 
@@ -42,14 +42,14 @@ export async function protect(
   key: CryptoKey,
   iv: ArrayBuffer
 ): Promise<TokenProtected> {
-  const synb = utf8ToBase64(JSON.stringify(raw.Synchronization));
+  const synb = utf8ToBase64(JSON.stringify(raw.Syn));
   const encsyn = await encryptAesCbc(base64ToArrayBuffer(synb), key, iv);
 
   return {
-    SynchronizationBytes: encsyn,
+    SynBytes: encsyn,
     Header: raw.Header,
-    Payload: raw.Payload,
-    SignatureBytes: raw.SignatureBytes,
+    Pld: raw.Pld,
+    SignBytes: raw.SignBytes,
   };
 }
 
@@ -58,12 +58,12 @@ export async function unprotect(
   key: CryptoKey,
   iv: ArrayBuffer
 ): Promise<TokenRaw> {
-  const synb = await decryptAesCbc(prot.SynchronizationBytes, key, iv);
+  const synb = await decryptAesCbc(prot.SynBytes, key, iv);
 
   return {
-    Synchronization: JSON.parse(arrayBufferToUtf8(synb)),
+    Syn: JSON.parse(arrayBufferToUtf8(synb)),
     Header: prot.Header,
-    Payload: prot.Payload,
-    SignatureBytes: prot.SignatureBytes,
+    Pld: prot.Pld,
+    SignBytes: prot.SignBytes,
   };
 }

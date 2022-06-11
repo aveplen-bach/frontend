@@ -1,8 +1,8 @@
 export interface TokenProtected {
-  SynchronizationBytes: ArrayBuffer;
+  SynBytes: ArrayBuffer;
   Header: Header;
-  Payload: Payload;
-  SignatureBytes: ArrayBuffer;
+  Pld: Payload;
+  SignBytes: ArrayBuffer;
 }
 
 export interface Header {
@@ -16,10 +16,10 @@ export interface Payload {
 }
 
 export interface TokenRaw {
-  Synchronization: Synchronization;
+  Syn: Synchronization;
   Header: Header;
-  Payload: Payload;
-  SignatureBytes: ArrayBuffer;
+  Pld: Payload;
+  SignBytes: ArrayBuffer;
 }
 
 export interface Synchronization {

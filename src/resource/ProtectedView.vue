@@ -2,8 +2,9 @@
   <div class="content d-flex justify-content-center align-items-center">
     <div class="card shadow col-6 card-fixed-height">
       <div class="card-body d-flex justify-content-center align-items-center">
-        <h1 class="text-success" v-if="authenticated">Авторизован</h1>
-        <h1 class="text-danger" v-else>Не авторизован</h1>
+        <h1 v-if="isLoading">Loading...</h1>
+        <h1 class="text-success" v-else-if="isLoaded">Authenticated</h1>
+        <h1 class="text-danger" v-else>Can't load resource</h1>
       </div>
     </div>
   </div>
@@ -12,11 +13,20 @@
 <script lang="ts" setup>
 import { useStore } from "vuex";
 import { key } from "@/_store";
-import { computed } from "@vue/runtime-core";
+import { computed, onMounted } from "@vue/runtime-core";
+import { ResourceStatus } from "@/_store/resource.module";
 
 const store = useStore(key);
 
-const authenticated = computed(() => store.state.protected.isAuthenticated);
+onMounted(() => store.dispatch("resource/access"));
+
+const authenticated = computed(() => store.state.resource?.authenticated);
+const isLoading = computed(
+  () => store.state.resource?.status === ResourceStatus.loading
+);
+const isLoaded = computed(
+  () => store.state.resource?.status === ResourceStatus.loading
+);
 </script>
 
 <style lang="scss" scoped>

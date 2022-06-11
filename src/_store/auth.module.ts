@@ -12,9 +12,9 @@ export interface AuthState {
   user: any;
 }
 
-const user = localStorage.getItem("user");
-const initialState = user
-  ? { status: AuthStatus.loggedIn, user: JSON.parse(user) }
+const authentication = localStorage.getItem("authentication");
+const initialState = authentication
+  ? { status: AuthStatus.loggedIn, authentication: JSON.parse(authentication) }
   : { status: AuthStatus.notLoggedIn };
 
 export const auth = {
