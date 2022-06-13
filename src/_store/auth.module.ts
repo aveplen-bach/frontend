@@ -1,7 +1,8 @@
 import { parseAuthentication } from "@/_helpers/ls-to-auth";
 import { authService } from "@/_services/auth";
 import { Authentication } from "@/_services/model/auth";
-import { Commit, Dispatch } from "vuex";
+import { Commit, Dispatch, useStore } from "vuex";
+import { key } from ".";
 
 export enum AuthStatus {
   notLoggedIn = 0,
@@ -14,19 +15,22 @@ export interface AuthState {
   auth?: Authentication;
 }
 
-const authentication = localStorage.getItem("authentication");
-const initialState: AuthState = {
-  status: AuthStatus.notLoggedIn,
-};
-
-if (authentication) {
-  initialState.auth = await parseAuthentication(JSON.parse(authentication));
-  initialState.status = AuthStatus.loggedIn;
-}
+(async () => {
+  const authentication = localStorage.getItem("authentication");
+  if (authentication) {
+    const store = useStore(key);
+    store.dispatch(
+      "auth/loginSuccess",
+      await parseAuthentication(JSON.parse(authentication))
+    );
+  }
+})();
 
 export const auth = {
   namespaced: true,
-  state: initialState,
+  state: {
+    status: AuthStatus.notLoggedIn,
+  },
 
   actions: {
     async login(
