@@ -1,7 +1,6 @@
-import { Authentication } from "@/_services/model/auth";
+import { LSAuthentication } from "@/_services/model/auth";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import {
-  importKey,
   base64ToArrayBuffer,
   arrayBufferToBase64,
   encryptAesCbc,
@@ -9,6 +8,7 @@ import {
   arrayBufferToUtf8,
   decryptAesCbc,
 } from "./crypto";
+import { parseAuthentication } from "./ls-to-auth";
 import { protect, pack, unpack, unprotect } from "./token";
 
 export const patchRequest = async (config: AxiosRequestConfig) => {
@@ -29,14 +29,13 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
     throw "not authenticated";
   }
 
-  const authp: Authentication = JSON.parse(authentication);
-  const key = await importKey(authp.key);
-  const iv = base64ToArrayBuffer(authp.iv);
+  const authp: LSAuthentication = JSON.parse(authentication);
+  const auth = await parseAuthentication(authp);
 
   authp.raw.Syn.syn += authp.raw.Syn.inc;
   authp.raw.Syn.inc = Math.random() % 1000;
 
-  const protectedd = await protect(authp.raw, key, iv);
+  const protectedd = await protect(authp.raw, auth.key, auth.iv);
   const packed = pack(protectedd);
 
   config.headers = config.headers || {};
@@ -49,8 +48,8 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
     config.data = arrayBufferToBase64(
       await encryptAesCbc(
         utf8ToArrayBuffer(JSON.stringify(config.data)),
-        key,
-        iv
+        auth.key,
+        auth.iv
       )
     );
   }
@@ -80,9 +79,8 @@ export const patchResponse = async (response: AxiosResponse) => {
     throw "not authenticated";
   }
 
-  const authp: Authentication = JSON.parse(authentication);
-  const key = await importKey(authp.key);
-  const iv = base64ToArrayBuffer(authp.iv);
+  const authp: LSAuthentication = JSON.parse(authentication);
+  const auth = await parseAuthentication(authp);
 
   const next = response.data?.next;
   if (!next) {
@@ -90,7 +88,7 @@ export const patchResponse = async (response: AxiosResponse) => {
   }
 
   const unpacked = unpack(next);
-  const unprotected = await unprotect(unpacked, key, iv);
+  const unprotected = await unprotect(unpacked, auth.key, auth.iv);
 
   if (unprotected.Syn.syn !== authp.raw.Syn.syn + authp.raw.Syn.inc) {
     throw "server returned incorrect syn";
@@ -100,7 +98,11 @@ export const patchResponse = async (response: AxiosResponse) => {
 
   response.data = JSON.parse(
     arrayBufferToUtf8(
-      await decryptAesCbc(base64ToArrayBuffer(response.data?.data), key, iv)
+      await decryptAesCbc(
+        base64ToArrayBuffer(response.data?.data),
+        auth.key,
+        auth.iv
+      )
     )
   );
 
