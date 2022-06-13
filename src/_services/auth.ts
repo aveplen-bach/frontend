@@ -74,7 +74,7 @@ async function login(
 }
 
 async function logout() {
-  const res = await axios.post(`${config.baseUrl}/open/logout`, {});
+  const res = await axios.get(`${config.baseUrl}/prot/logout`);
   if (res.status !== 200) {
     console.error(res.data?.err);
     throw "server returned bas status code";
