@@ -32,6 +32,10 @@ async function register(req: RegisterRequest): Promise<void> {
     throw "парли должны совпадать";
   }
 
+  if (req.photo.byteLength === 0) {
+    throw "выбранный файл пуст";
+  }
+
   try {
     await axios.post(`${config.baseUrl}/auth/encr/register`, {
       username: req.username,
