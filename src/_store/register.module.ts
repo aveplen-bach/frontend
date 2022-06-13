@@ -32,6 +32,10 @@ export const register = {
         commit("registerFailure", error);
       }
     },
+
+    setError({ commit }: { commit: Commit }, error: string) {
+      commit("registerFailure", error);
+    },
   },
 
   mutations: {
