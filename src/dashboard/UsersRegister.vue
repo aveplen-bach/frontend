@@ -89,10 +89,14 @@
 import { key } from "@/_store";
 import { RegisterStatus } from "@/_store/register.module";
 import { computed } from "@vue/runtime-core";
-import { ref, Ref } from "vue";
+import { onMounted, ref, Ref } from "vue";
 import { useStore } from "vuex";
 
 const store = useStore(key);
+
+onMounted(() => {
+  store.dispatch("register/resetError");
+});
 
 const isSending = computed(
   () => store.state.register?.status === RegisterStatus.sending
