@@ -1,4 +1,4 @@
-import { base64ToArrayBuffer, importKey } from "@/_helpers/crypto";
+import { parseAuthentication } from "@/_helpers/ls-to-auth";
 import { authService } from "@/_services/auth";
 import { Authentication } from "@/_services/model/auth";
 import { Commit, Dispatch } from "vuex";
@@ -20,14 +20,7 @@ const initialState: AuthState = {
 };
 
 if (authentication) {
-  const authp = JSON.parse(authentication);
-  initialState.auth = {
-    username: authp.username,
-    key: await importKey(authp.key),
-    iv: base64ToArrayBuffer(authp.iv),
-    raw: authp.raw,
-  };
-
+  initialState.auth = await parseAuthentication(JSON.parse(authentication));
   initialState.status = AuthStatus.loggedIn;
 }
 
