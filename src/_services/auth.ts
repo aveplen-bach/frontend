@@ -9,6 +9,7 @@ import {
 import { config } from "@/_config";
 import { unpack, unprotect } from "@/_helpers/token";
 import axios from "axios";
+import { Authentication } from "./model/auth";
 
 export const authService = {
   login,
@@ -26,7 +27,7 @@ async function login(
   username: string,
   password: string,
   photo: Blob
-): Promise<void> {
+): Promise<Authentication> {
   const getSaltRes = await axios.post(`${config.baseUrl}/open/login`, {
     stage: LoginStage.CLIENT_CONN_INIT,
     username: username,
@@ -63,6 +64,13 @@ async function login(
       iv: arrayBufferToBase64(iv),
     })
   );
+
+  return {
+    username: username,
+    raw: raw,
+    key: key,
+    iv: iv,
+  };
 }
 
 async function logout() {
