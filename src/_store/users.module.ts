@@ -1,4 +1,4 @@
-import { adminService } from "@/_services/admin";
+import { adminService } from "@/_services/users";
 import { User } from "@/_services/model/user";
 import { Commit } from "vuex";
 
