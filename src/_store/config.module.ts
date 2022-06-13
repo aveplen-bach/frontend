@@ -14,7 +14,7 @@ export interface ConfigState {
   error: string;
 }
 
-export const register = {
+export const config = {
   namespaced: true,
   state: {
     status: ConfigStatus.initial,
