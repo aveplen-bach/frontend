@@ -1,6 +1,7 @@
 import { adminService } from "@/_services/users";
 import { User } from "@/_services/model/user";
 import { Commit } from "vuex";
+import { RegisterRequest } from "@/_services/model/register";
 
 export enum UsersStatus {
   loading = 1,

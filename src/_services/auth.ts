@@ -28,7 +28,7 @@ async function login(
   password: string,
   photo: Blob
 ): Promise<Authentication> {
-  const getSaltRes = await axios.post(`${config.baseUrl}/open/login`, {
+  const getSaltRes = await axios.post(`${config.baseUrl}/auth/open/login`, {
     stage: LoginStage.CLIENT_CONN_INIT,
     username: username,
   });
@@ -44,7 +44,7 @@ async function login(
   const iv = randomIv();
   const encrypted = await encryptAesCbc(await photo.arrayBuffer(), key, iv);
 
-  const getTokenRes = await axios.post(`${config.baseUrl}/open/login`, {
+  const getTokenRes = await axios.post(`${config.baseUrl}/auth/open/login`, {
     stage: LoginStage.CLIENT_CRIDENTIALS,
     username: username,
     cipher: arrayBufferToBase64(encrypted),
@@ -74,7 +74,7 @@ async function login(
 }
 
 async function logout() {
-  const res = await axios.get(`${config.baseUrl}/prot/logout`);
+  const res = await axios.get(`${config.baseUrl}/auth/prot/logout`);
   if (res.status !== 200) {
     console.error(res.data?.err);
     throw "server returned bas status code";
