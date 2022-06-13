@@ -1,6 +1,5 @@
 import { config } from "@/_config";
-import { arrayBufferToBase64, encryptAesCbc } from "@/_helpers/crypto";
-import { parseAuthentication } from "@/_helpers/ls-to-auth";
+import { arrayBufferToBase64 } from "@/_helpers/crypto";
 import axios from "axios";
 import { RegisterRequest } from "./model/register";
 import { User } from "./model/user";
