@@ -17,10 +17,10 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
 
   config.url = config.url || "";
 
-  const protd = config.url.indexOf("/protected") > 0;
-  const admin = config.url.indexOf("admin") > 0;
+  const prot = config.url.indexOf("/prot") > 0;
+  const encr = config.url.indexOf("/encr") > 0;
 
-  if (!(admin || protd)) {
+  if (!(encr || prot)) {
     return config;
   }
 
@@ -45,7 +45,7 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
     Authorization: `Bearer ${packed}`,
   };
 
-  if (admin && config.data) {
+  if (encr && config.data) {
     config.data = arrayBufferToBase64(
       await encryptAesCbc(
         utf8ToArrayBuffer(JSON.stringify(config.data)),
@@ -68,10 +68,10 @@ export const patchResponse = async (response: AxiosResponse) => {
     throw "no url in response config";
   }
 
-  const protd = response.config.url.indexOf("/protected") > 0;
-  const admin = response.config.url.indexOf("/admin") > 0;
+  const prot = response.config.url.indexOf("/prot") > 0;
+  const encr = response.config.url.indexOf("/encr") > 0;
 
-  if (!(admin || protd)) {
+  if (!(encr || prot)) {
     return response;
   }
 
