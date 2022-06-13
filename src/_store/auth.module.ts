@@ -1,4 +1,6 @@
+import { base64ToArrayBuffer, importKey } from "@/_helpers/crypto";
 import { authService } from "@/_services/auth";
+import { Authentication } from "@/_services/model/auth";
 import { Commit, Dispatch } from "vuex";
 
 export enum AuthStatus {
@@ -9,13 +11,25 @@ export enum AuthStatus {
 
 export interface AuthState {
   status: AuthStatus;
-  user: any;
+  auth?: Authentication;
 }
 
 const authentication = localStorage.getItem("authentication");
-const initialState = authentication
-  ? { status: AuthStatus.loggedIn, authentication: JSON.parse(authentication) }
-  : { status: AuthStatus.notLoggedIn };
+const initialState: AuthState = {
+  status: AuthStatus.notLoggedIn,
+};
+
+if (authentication) {
+  const authp = JSON.parse(authentication);
+  initialState.auth = {
+    username: authp.username,
+    key: await importKey(authp.key),
+    iv: base64ToArrayBuffer(authp.iv),
+    raw: authp.raw,
+  };
+
+  initialState.status = AuthStatus.loggedIn;
+}
 
 export const auth = {
   namespaced: true,
@@ -30,7 +44,7 @@ export const auth = {
         photo,
       }: { username: string; password: string; photo: Blob }
     ) {
-      commit("loginRequest", { username: "fjsdl" });
+      commit("loginRequest");
 
       try {
         await authService.login(username, password, photo);
@@ -52,28 +66,27 @@ export const auth = {
   },
 
   mutations: {
-    loginRequest(state: AuthState, { username }: { username: string }) {
+    loginRequest(state: AuthState) {
       console.log("login request");
       state.status = AuthStatus.loggingIn;
-      state.user = { username };
     },
 
-    loginSuccess(state: AuthState, user: any) {
+    loginSuccess(state: AuthState, auth: Authentication) {
       console.log("login success");
       state.status = AuthStatus.loggedIn;
-      state.user = user;
+      state.auth = auth;
     },
 
     loginFailure(state: AuthState) {
       console.log("login failure");
       state.status = AuthStatus.notLoggedIn;
-      state.user = null;
+      state.auth = undefined;
     },
 
     logout(state: AuthState) {
       console.log("logout");
       state.status = AuthStatus.notLoggedIn;
-      state.user = null;
+      state.auth = undefined;
     },
   },
 };
