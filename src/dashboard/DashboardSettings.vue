@@ -17,16 +17,19 @@
               class="form-control"
               id="exampleInputEmail1"
               aria-describedby="emailHelp"
-              v-model="regUsername"
+              v-model="distance"
             />
           </div>
           <button
             type="submit"
             class="btn btn-success"
-            @click.prevent="register"
+            :class="{ disabled: isSending }"
+            @click.prevent="update"
           >
             Обновить параметры
           </button>
+          <div v-if="isFailure" class="text-danger">{{ error }}</div>
+          <div v-if="isSuccess" class="text-success"></div>
         </form>
       </div>
     </div>
@@ -35,7 +38,27 @@
 
 <script lang="ts" setup>
 import { key } from "@/_store";
+import { ConfigStatus } from "@/_store/config.module";
+import { computed, ref } from "vue";
 import { useStore } from "vuex";
 
-useStore(key);
+const store = useStore(key);
+
+const isSending = computed(
+  () => store.state.config?.status === ConfigStatus.sending
+);
+const isSuccess = computed(
+  () => store.state.config?.status === ConfigStatus.success
+);
+const isFailure = computed(
+  () => store.state.config?.status === ConfigStatus.failure
+);
+
+const error = computed(() => store.state.config?.error);
+
+const distance = ref("");
+
+const update = () => {
+  store.dispatch("config/updateFacerecConfig", distance.value);
+};
 </script>
