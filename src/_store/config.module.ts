@@ -23,12 +23,12 @@ export const config = {
   actions: {
     async updateFacerecConfig(
       { commit }: { commit: Commit },
-      req: FacerecConfigRequest
+      distance: string
     ) {
       commit("configRequest");
 
       try {
-        await configService.updateFacerecConfig(req);
+        await configService.updateFacerecConfig({ distanceStr: distance });
         commit("configSuccess");
       } catch (error) {
         console.error(error);
