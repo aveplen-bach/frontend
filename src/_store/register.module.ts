@@ -36,9 +36,16 @@ export const register = {
     setError({ commit }: { commit: Commit }, error: string) {
       commit("registerFailure", error);
     },
+
+    resetError({ commit }: { commit: Commit }) {
+      commit("registerReset");
+    },
   },
 
   mutations: {
+    registerReset(state: RegisterState) {
+      state.status = RegisterStatus.initial;
+    },
     registerRequest(state: RegisterState) {
       state.status = RegisterStatus.sending;
     },
