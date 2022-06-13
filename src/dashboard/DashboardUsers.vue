@@ -72,35 +72,10 @@ import { ref, onMounted, computed, Ref } from "vue";
 import { useStore } from "vuex";
 const store = useStore(key);
 
-// onMounted(() => {
-//   store.dispatch("adminUsers");
-// });
+onMounted(() => {
+  store.dispatch("users/getUsers");
+});
 
 const search = ref("");
 const searchFound = computed(() => store.state.users?.users);
-
-const regUsername = ref("");
-const regPassword = ref("");
-const regRepeat = ref("");
-const regAdmin = ref(false);
-const regPhotos: Ref = ref(null);
-
-const register = async () => {
-  const fr = new FileReader();
-  fr.onload = (e: ProgressEvent<FileReader>) => {
-    store.dispatch("adminRegister", {
-      username: regUsername.value,
-      password: regPassword.value,
-      repeat: regRepeat.value,
-      admin: regAdmin.value,
-      photo: e.target?.result,
-    });
-  };
-
-  try {
-    fr.readAsArrayBuffer(regPhotos.value.files[0]);
-  } catch (e) {
-    store.commit("DASHBOARD_SET_ERROR", { error: "необходимо выбрать файл" });
-  }
-};
 </script>
