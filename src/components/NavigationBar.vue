@@ -57,18 +57,6 @@
         </li>
 
         <li class="nav-item" v-if="!loggedIn">
-          <router-link to="/login" custom v-slot="{ href, navigate }">
-            <a
-              :href="href"
-              @click="navigate"
-              class="nav-link"
-              :class="{ active: isLogin }"
-              >Вход</a
-            >
-          </router-link>
-        </li>
-
-        <li class="nav-item" v-if="!loggedIn">
           <router-link to="/hello" custom v-slot="{ href, navigate }">
             <a
               :href="href"
@@ -76,6 +64,18 @@
               class="nav-link"
               :class="{ active: isLogin }"
               >Hello</a
+            >
+          </router-link>
+        </li>
+
+        <li class="nav-item" v-if="!loggedIn">
+          <router-link to="/login" custom v-slot="{ href, navigate }">
+            <a
+              :href="href"
+              @click="navigate"
+              class="nav-link"
+              :class="{ active: isLogin }"
+              >Вход</a
             >
           </router-link>
         </li>
