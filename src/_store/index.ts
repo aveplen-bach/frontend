@@ -6,6 +6,7 @@ import { users, UsersState } from "./users.module";
 import { resource, ResourceState } from "./resource.module";
 import { register, RegisterState } from "./register.module";
 import { config, ConfigState } from "./config.module";
+import { hello, HelloState } from "./hello.module";
 
 export interface State {
   alert?: AlertState;
@@ -14,6 +15,7 @@ export interface State {
   resource?: ResourceState;
   register?: RegisterState;
   config?: ConfigState;
+  hello?: HelloState;
 }
 
 export const key: InjectionKey<Store<State>> = Symbol();
@@ -25,5 +27,6 @@ export default createStore<State>({
     resource,
     register,
     config,
+    hello,
   },
 });

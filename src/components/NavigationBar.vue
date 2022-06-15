@@ -68,6 +68,18 @@
           </router-link>
         </li>
 
+        <li class="nav-item" v-if="!loggedIn">
+          <router-link to="/hello" custom v-slot="{ href, navigate }">
+            <a
+              :href="href"
+              @click="navigate"
+              class="nav-link"
+              :class="{ active: isLogin }"
+              >Hello</a
+            >
+          </router-link>
+        </li>
+
         <li class="nav-item" v-else>
           <a href="#" class="nav-link" @click.prevent="logout">Выход</a>
         </li>

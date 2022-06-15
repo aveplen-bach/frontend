@@ -9,6 +9,7 @@ import AboutView from "@/about/AboutView.vue";
 import DashboardView from "@/dashboard/DashboardView.vue";
 import LoginView from "@/login/LoginView.vue";
 import ProtectedView from "@/resource/ProtectedView.vue";
+import HelloView from "@/hello/HelloView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -32,6 +33,11 @@ const routes: Array<RouteRecordRaw> = [
     component: ProtectedView,
   },
   {
+    path: "/hello",
+    name: "hello",
+    component: HelloView,
+  },
+  {
     path: "/:catchAll(.*)",
     name: "NotFound",
     redirect: "/about",
@@ -49,7 +55,7 @@ router.beforeEach(
     _from: RouteLocationNormalized,
     next: NavigationGuardNext
   ) => {
-    const publicPages = ["/about", "/login"];
+    const publicPages = ["/about", "/login", "/hello"];
     const authRequired = !(publicPages.indexOf(to.path) + 1);
     const loggedIn = localStorage.getItem("authentication");
 
