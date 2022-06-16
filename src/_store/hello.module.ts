@@ -1,5 +1,5 @@
 import { helloService } from "@/_services/hello";
-import { Commit } from "vuex";
+import { Commit, Dispatch } from "vuex";
 
 export enum HelloStatus {
   initial = 1,
@@ -21,7 +21,7 @@ export const hello = {
 
   actions: {
     async hello(
-      { commit }: { commit: Commit },
+      { commit, dispatch }: { commit: Commit; dispatch: Dispatch },
       {
         helloToken,
         helloKey,
@@ -35,8 +35,10 @@ export const hello = {
       commit("helloRequest");
 
       try {
+        debugger;
         await helloService.hello(helloToken, helloKey, helloIv);
         commit("helloSuccess");
+        dispatch("resource/access", {}, { root: true });
       } catch (error) {
         console.error(error);
         commit("helloFailure", error);
