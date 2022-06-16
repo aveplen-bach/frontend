@@ -28,7 +28,7 @@ async function login(
   password: string,
   photo: Blob
 ): Promise<Authentication> {
-  const getSaltRes = await axios.post(`${config.baseUrl}/auth/open/login`, {
+  const getSaltRes = await axios.post(`${config.authBaseUrl}/auth/open/login`, {
     stage: LoginStage.CLIENT_CONN_INIT,
     username: username,
   });
@@ -44,12 +44,15 @@ async function login(
   const iv = randomIv();
   const encrypted = await encryptAesCbc(await photo.arrayBuffer(), key, iv);
 
-  const getTokenRes = await axios.post(`${config.baseUrl}/auth/open/login`, {
-    stage: LoginStage.CLIENT_CRIDENTIALS,
-    username: username,
-    cipher: arrayBufferToBase64(encrypted),
-    iv: arrayBufferToBase64(iv),
-  });
+  const getTokenRes = await axios.post(
+    `${config.authBaseUrl}/auth/open/login`,
+    {
+      stage: LoginStage.CLIENT_CRIDENTIALS,
+      username: username,
+      cipher: arrayBufferToBase64(encrypted),
+      iv: arrayBufferToBase64(iv),
+    }
+  );
 
   const token = getTokenRes.data?.token;
   const unpacked = unpack(token);
@@ -67,14 +70,14 @@ async function login(
 
   return {
     username: username,
-    raw: raw,
+    token: raw,
     key: key,
     iv: iv,
   };
 }
 
 async function logout() {
-  const res = await axios.get(`${config.baseUrl}/auth/prot/logout`);
+  const res = await axios.get(`${config.authBaseUrl}/auth/prot/logout`);
   if (res.status !== 200) {
     console.error(res.data?.err);
     throw "server returned bas status code";

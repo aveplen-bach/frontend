@@ -6,9 +6,13 @@ export const resourceService = {
 };
 
 async function access(): Promise<boolean> {
+  debugger;
+
   try {
-    const res = await axios.post(`${config.baseUrl}/protected/authenticated`);
-    return res.data?.authenticated;
+    const res = await axios.get(
+      `${config.resourceBaseUrl}/resource/prot/authenticated`
+    );
+    return JSON.parse(res.data?.authenticated);
   } catch (error) {
     console.error(error);
     throw error;

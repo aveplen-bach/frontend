@@ -11,7 +11,7 @@ export const adminService = {
 
 async function getUsers(): Promise<User[]> {
   try {
-    const res = await axios.get(`${config.baseUrl}/auth/encr/user`);
+    const res = await axios.get(`${config.authBaseUrl}/auth/encr/users`);
     return res.data?.users;
   } catch (err) {
     console.error(err);
@@ -37,7 +37,8 @@ async function register(req: RegisterRequest): Promise<void> {
   }
 
   try {
-    await axios.post(`${config.baseUrl}/auth/encr/register`, {
+    debugger;
+    await axios.post(`${config.authBaseUrl}/auth/encr/users`, {
       username: req.username,
       password: req.password,
       admin: req.admin,

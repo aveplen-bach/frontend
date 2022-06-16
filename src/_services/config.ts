@@ -14,7 +14,7 @@ async function updateFacerecConfig(
   }
 
   try {
-    await axios.post(`${config.baseUrl}/config/encr/facerec`, {
+    await axios.post(`${config.authBaseUrl}/config/encr/facerec`, {
       distance: parseFloat(req.distanceStr),
     });
   } catch (error) {
