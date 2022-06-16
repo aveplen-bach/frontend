@@ -32,10 +32,20 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
   const authp: LSAuthentication = JSON.parse(authentication);
   const auth = await parseAuthentication(authp);
 
-  authp.raw.Syn.syn += authp.raw.Syn.inc;
-  authp.raw.Syn.inc = Math.random() % 1000;
+  authp.token.Syn.syn += authp.token.Syn.inc;
+  authp.token.Syn.inc = Math.floor(Math.random() * 1000);
 
-  const protectedd = await protect(authp.raw, auth.key, auth.iv);
+  localStorage.setItem(
+    "authentication",
+    JSON.stringify({
+      username: authp.username,
+      token: authp.token,
+      key: authp.key,
+      iv: authp.iv,
+    })
+  );
+
+  const protectedd = await protect(authp.token, auth.key, auth.iv);
   const packed = pack(protectedd);
 
   config.headers = config.headers || {};
@@ -59,6 +69,8 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
 
 export const patchResponse = async (response: AxiosResponse) => {
   console.log(response);
+
+  debugger;
 
   response.config = response.config || {};
 
@@ -90,21 +102,37 @@ export const patchResponse = async (response: AxiosResponse) => {
   const unpacked = unpack(next);
   const unprotected = await unprotect(unpacked, auth.key, auth.iv);
 
-  if (unprotected.Syn.syn !== authp.raw.Syn.syn + authp.raw.Syn.inc) {
+  if (unprotected.Syn.syn !== authp.token.Syn.syn + authp.token.Syn.inc) {
     throw "server returned incorrect syn";
   }
 
-  authp.raw.Syn = unprotected.Syn;
+  authp.token.Syn = unprotected.Syn;
 
-  response.data = JSON.parse(
-    arrayBufferToUtf8(
-      await decryptAesCbc(
-        base64ToArrayBuffer(response.data?.data),
-        auth.key,
-        auth.iv
-      )
-    )
+  localStorage.setItem(
+    "authentication",
+    JSON.stringify({
+      username: authp.username,
+      token: authp.token,
+      key: authp.key,
+      iv: authp.iv,
+    })
   );
+
+  if (prot) {
+    response.data = response.data?.data;
+  }
+
+  if (encr) {
+    response.data = JSON.parse(
+      arrayBufferToUtf8(
+        await decryptAesCbc(
+          base64ToArrayBuffer(response.data?.data),
+          auth.key,
+          auth.iv
+        )
+      )
+    );
+  }
 
   return response;
 };

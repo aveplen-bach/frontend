@@ -6,7 +6,7 @@ export async function parseAuthentication(
 ): Promise<Authentication> {
   return {
     username: ls.username,
-    raw: ls.raw,
+    token: ls.token,
     key: await importKey(ls.key),
     iv: base64ToArrayBuffer(ls.iv),
   };
