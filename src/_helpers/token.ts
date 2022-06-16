@@ -13,7 +13,7 @@ export function pack(prot: TokenProtected): string {
   const b64Syn = arrayBufferToBase64(prot.SynBytes);
   const b64Head = utf8ToBase64(JSON.stringify(prot.Header));
   const b64Pld = utf8ToBase64(JSON.stringify(prot.Pld));
-  const b64Sign = arrayBufferToBase64(prot.SignBytes);
+  const b64Sign = prot.Sign;
 
   return [b64Syn, b64Head, b64Pld, b64Sign].join(".");
 }
@@ -27,13 +27,13 @@ export function unpack(token: string): TokenProtected {
   const syn = base64ToArrayBuffer(tokenParts[0]);
   const head = JSON.parse(base64ToUtf8(tokenParts[1]));
   const plb = JSON.parse(base64ToUtf8(tokenParts[2]));
-  const sign = base64ToArrayBuffer(tokenParts[3]);
+  const sign = tokenParts[3];
 
   return {
     SynBytes: syn,
     Header: head,
     Pld: plb,
-    SignBytes: sign,
+    Sign: sign,
   };
 }
 
@@ -49,7 +49,7 @@ export async function protect(
     SynBytes: encsyn,
     Header: raw.Header,
     Pld: raw.Pld,
-    SignBytes: raw.SignBytes,
+    Sign: raw.Sign,
   };
 }
 
@@ -64,6 +64,6 @@ export async function unprotect(
     Syn: JSON.parse(arrayBufferToUtf8(synb)),
     Header: prot.Header,
     Pld: prot.Pld,
-    SignBytes: prot.SignBytes,
+    Sign: prot.Sign,
   };
 }

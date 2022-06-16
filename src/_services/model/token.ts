@@ -2,7 +2,7 @@ export interface TokenProtected {
   SynBytes: ArrayBuffer;
   Header: Header;
   Pld: Payload;
-  SignBytes: ArrayBuffer;
+  Sign: string;
 }
 
 export interface Header {
@@ -19,7 +19,7 @@ export interface TokenRaw {
   Syn: Synchronization;
   Header: Header;
   Pld: Payload;
-  SignBytes: ArrayBuffer;
+  Sign: string;
 }
 
 export interface Synchronization {
