@@ -28,6 +28,7 @@ export const resource = {
       commit("accessResourceRequest");
       try {
         const authenticated = await resourceService.access();
+        debugger;
         commit("accessResourceSuccess", authenticated);
       } catch (error) {
         console.error(error);

@@ -25,6 +25,7 @@ export const register = {
       commit("registerRequest");
 
       try {
+        debugger;
         await adminService.register(req);
         commit("registerSuccess");
       } catch (error) {
