@@ -25,7 +25,7 @@ const isLoading = computed(
   () => store.state.resource?.status === ResourceStatus.loading
 );
 const isLoaded = computed(
-  () => store.state.resource?.status === ResourceStatus.loading
+  () => store.state.resource?.status === ResourceStatus.loaded
 );
 </script>
 
