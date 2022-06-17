@@ -60,6 +60,10 @@ export const auth = {
         dispatch("alert/error", error, { root: true });
       }
     },
+
+    loginSuccess({ commit }: { commit: Commit }, auth: Authentication) {
+      commit("loginSuccess", auth);
+    },
   },
 
   mutations: {
