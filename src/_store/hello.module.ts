@@ -38,7 +38,7 @@ export const hello = {
         debugger;
         const auth = await helloService.hello(helloToken, helloKey, helloIv);
         commit("helloSuccess");
-        dispatch("resource/access", {}, { root: true });
+        dispatch("auth/authenticated", {}, { root: true });
         dispatch("auth/loginSuccess", auth, { root: true });
       } catch (error) {
         console.error(error);
