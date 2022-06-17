@@ -15,8 +15,16 @@ import { useStore } from "vuex";
 import { key } from "@/_store";
 import { computed, onMounted } from "@vue/runtime-core";
 import { ResourceStatus } from "@/_store/resource.module";
+import { useRouter } from "vue-router";
+import { AuthStatus } from "@/_store/auth.module";
 
 const store = useStore(key);
+
+const router = useRouter();
+if (store.state.auth?.status != AuthStatus.loggedIn) {
+  alert("Необходимо быть авторизованным");
+  router.push("/login");
+}
 
 onMounted(() => store.dispatch("resource/access"));
 

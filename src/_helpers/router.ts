@@ -49,22 +49,4 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(
-  (
-    to: RouteLocationNormalized,
-    _from: RouteLocationNormalized,
-    next: NavigationGuardNext
-  ) => {
-    const publicPages = ["/about", "/login", "/hello"];
-    const authRequired = !(publicPages.indexOf(to.path) + 1);
-    const loggedIn = localStorage.getItem("authentication");
-
-    if (authRequired && !loggedIn) {
-      return next("/login");
-    }
-
-    next();
-  }
-);
-
 export default router;

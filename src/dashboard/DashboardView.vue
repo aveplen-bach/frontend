@@ -42,8 +42,20 @@
 <script lang="ts" setup>
 import DashboardSettings from "@/dashboard/DashboardSettings.vue";
 import DashboardUsers from "@/dashboard/DashboardUsers.vue";
+import { key } from "@/_store";
+import { AuthStatus } from "@/_store/auth.module";
 import { ref } from "@vue/reactivity";
 import { computed } from "@vue/runtime-core";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+
+const store = useStore(key);
+
+const router = useRouter();
+if (store.state.auth?.status != AuthStatus.loggedIn) {
+  alert("Необходимо быть авторизованным");
+  router.push("/login");
+}
 
 const tab = ref("users");
 const isUsers = computed(() => tab.value === "users");
