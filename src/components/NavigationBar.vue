@@ -11,7 +11,7 @@
         >
           <span class="fs-4">
             Тетатет (
-            <span v-if="loggingIn">logging in</span>
+            <span v-if="loggingIn">logging in...</span>
             <span v-else-if="loggedIn">logged in</span>
             <span v-else>not logged in</span>
             )
@@ -62,8 +62,8 @@
               :href="href"
               @click="navigate"
               class="nav-link"
-              :class="{ active: isLogin }"
-              >Hello</a
+              :class="{ active: isHello }"
+              >Администрирование</a
             >
           </router-link>
         </li>
@@ -100,6 +100,7 @@ const store = useStore(key);
 const isAbout = computed(() => useRoute().name == "about");
 const isProtected = computed(() => useRoute().name == "protected");
 const isLogin = computed(() => useRoute().name == "login");
+const isHello = computed(() => useRoute().name == "hello");
 const isDashboard = computed(() => useRoute().name == "dashboard");
 
 const loggingIn = computed(
