@@ -44,8 +44,9 @@ export const auth = {
       commit("loginRequest");
 
       try {
-        const auth = await authService.login(username, password, photo);
-        commit("loginSuccess", auth);
+        /*const auth = */ await authService.login(username, password, photo);
+        dispatch("authenticated");
+        // commit("loginSuccess", auth);
       } catch (error) {
         commit("loginFailure", error);
         dispatch("alert/error", error, { root: true });
@@ -57,6 +58,24 @@ export const auth = {
         await authService.logout();
         commit("logout");
       } catch (error) {
+        dispatch("alert/error", error, { root: true });
+      }
+    },
+
+    async authenticated({
+      commit,
+      dispatch,
+    }: {
+      commit: Commit;
+      dispatch: Dispatch;
+    }) {
+      debugger;
+      commit("loginRequest");
+      try {
+        await authService.authenticated();
+        commit("loginSuccess");
+      } catch (error) {
+        commit("loginFailure", error);
         dispatch("alert/error", error, { root: true });
       }
     },
