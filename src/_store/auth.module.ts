@@ -44,8 +44,8 @@ export const auth = {
       commit("loginRequest");
 
       try {
-        await authService.login(username, password, photo);
-        commit("loginSuccess", { username });
+        const auth = await authService.login(username, password, photo);
+        commit("loginSuccess", auth);
       } catch (error) {
         commit("loginFailure", error);
         dispatch("alert/error", error, { root: true });
