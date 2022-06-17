@@ -1,6 +1,6 @@
 import { RegisterRequest } from "@/_services/model/register";
 import { adminService } from "@/_services/users";
-import { Commit } from "vuex";
+import { Commit, Dispatch } from "vuex";
 
 export enum RegisterStatus {
   initial = 1,
@@ -21,13 +21,17 @@ export const register = {
   },
 
   actions: {
-    async register({ commit }: { commit: Commit }, req: RegisterRequest) {
+    async register(
+      { commit, dispatch }: { commit: Commit; dispatch: Dispatch },
+      req: RegisterRequest
+    ) {
       commit("registerRequest");
 
       try {
         debugger;
         await adminService.register(req);
         commit("registerSuccess");
+        dispatch("users/getUsers", {}, { root: true });
       } catch (error) {
         console.error(error);
         commit("registerFailure", error);
