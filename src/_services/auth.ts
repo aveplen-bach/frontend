@@ -14,6 +14,7 @@ import { Authentication } from "./model/auth";
 export const authService = {
   login,
   logout,
+  authenticated,
 };
 
 enum LoginStage {
@@ -74,6 +75,15 @@ async function login(
     key: key,
     iv: iv,
   };
+}
+
+async function authenticated() {
+  const res = await axios.get(`${config.authBaseUrl}/auth/prot/authenticated`);
+  debugger;
+  if (res.status !== 200) {
+    console.error(res.data?.err);
+    throw "server returned bas status code";
+  }
 }
 
 async function logout() {
