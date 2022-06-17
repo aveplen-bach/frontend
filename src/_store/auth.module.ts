@@ -1,6 +1,7 @@
 import { parseAuthentication } from "@/_helpers/ls-to-auth";
 import { authService } from "@/_services/auth";
 import { Authentication } from "@/_services/model/auth";
+import { useRouter } from "vue-router";
 import { Commit, Dispatch, useStore } from "vuex";
 import { key } from ".";
 
@@ -41,12 +42,15 @@ export const auth = {
         photo,
       }: { username: string; password: string; photo: Blob }
     ) {
+      const router = useRouter();
+
       commit("loginRequest");
 
       try {
         /*const auth = */ await authService.login(username, password, photo);
         dispatch("authenticated");
         // commit("loginSuccess", auth);
+        router.push("/protected");
       } catch (error) {
         commit("loginFailure", error);
         dispatch("alert/error", error, { root: true });

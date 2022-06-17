@@ -1,4 +1,5 @@
 import { helloService } from "@/_services/hello";
+import { useRouter } from "vue-router";
 import { Commit, Dispatch } from "vuex";
 
 export enum HelloStatus {
@@ -32,6 +33,8 @@ export const hello = {
         helloIv: string;
       }
     ) {
+      const router = useRouter();
+
       commit("helloRequest");
 
       try {
@@ -40,6 +43,7 @@ export const hello = {
         commit("helloSuccess");
         dispatch("auth/authenticated", {}, { root: true });
         dispatch("auth/loginSuccess", auth, { root: true });
+        router.push("/dashboard");
       } catch (error) {
         console.error(error);
         commit("helloFailure", error);
