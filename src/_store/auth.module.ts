@@ -74,7 +74,6 @@ export const auth = {
       commit: Commit;
       dispatch: Dispatch;
     }) {
-      debugger;
       commit("loginRequest");
       try {
         await authService.authenticated();
@@ -94,24 +93,20 @@ export const auth = {
 
   mutations: {
     loginRequest(state: AuthState) {
-      console.log("login request");
       state.status = AuthStatus.loggingIn;
     },
 
     loginSuccess(state: AuthState, auth: Authentication) {
-      console.log("login success");
       state.status = AuthStatus.loggedIn;
       state.auth = auth;
     },
 
     loginFailure(state: AuthState) {
-      console.log("login failure");
       state.status = AuthStatus.notLoggedIn;
       state.auth = undefined;
     },
 
     logout(state: AuthState) {
-      console.log("logout");
       state.status = AuthStatus.notLoggedIn;
       state.auth = undefined;
     },

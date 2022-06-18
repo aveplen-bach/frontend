@@ -12,7 +12,6 @@ import { parseAuthentication } from "./ls-to-auth";
 import { protect, pack, unpack, unprotect } from "./token";
 
 export const patchRequest = async (config: AxiosRequestConfig) => {
-  debugger;
   config.url = config.url || "";
 
   const prot = config.url.includes("/prot");
@@ -59,7 +58,6 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
 };
 
 export const patchResponse200 = async (response: AxiosResponse) => {
-  debugger;
   response.config = response.config || {};
 
   if (!response.config.url) {
@@ -121,7 +119,6 @@ export const patchResponse200 = async (response: AxiosResponse) => {
 };
 
 export const patchResponse400 = async (error: AxiosError) => {
-  debugger;
   if (error.response?.status === 404) {
     const err = "server returned 404";
     console.error(err);
@@ -201,9 +198,6 @@ export const patchResponse400 = async (error: AxiosError) => {
 };
 
 function fallback(cause: string | null) {
-  console.log(`falling back due to: ${cause || "unkown"}`);
-
-  debugger;
   const fb = localStorage.getItem("fallback");
   if (!fb) {
     const err = `local storage does not contain "fallback" key`;

@@ -119,7 +119,6 @@ const photo: Ref = ref(null);
 const register = async () => {
   const fr = new FileReader();
   fr.onload = (e: ProgressEvent<FileReader>) => {
-    debugger;
     store.dispatch("register/register", {
       username: username.value,
       password: password.value,
@@ -130,10 +129,8 @@ const register = async () => {
   };
 
   try {
-    debugger;
     fr.readAsArrayBuffer(photo.value.files[0]);
   } catch (e) {
-    debugger;
     console.error("file is not selected");
     store.dispatch("register/setError", "необходимо выбрать файл");
   }
