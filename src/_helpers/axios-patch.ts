@@ -84,6 +84,7 @@ export const patchResponse200 = async (response: AxiosResponse) => {
   const { key, iv } = await parseAuthentication(authObj);
 
   const next = response.data?.next;
+  console.log(next);
   if (!next) {
     const err = "server did not return new token";
     console.error(err);
