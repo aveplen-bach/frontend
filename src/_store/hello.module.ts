@@ -48,6 +48,7 @@ export const hello = {
         //
       } catch (error) {
         //
+        await commit("helloFailure", error);
         await dispatch("alert/error", "ошибка локальной авторизации", {
           root: true,
         });

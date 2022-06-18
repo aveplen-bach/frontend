@@ -44,6 +44,7 @@ export const users = {
         //
       } catch (error) {
         //
+        await commit("getUsersFailure", error);
         await dispatch("alert/error", "ошибка получения списка пользователей", {
           root: true,
         });

@@ -36,6 +36,7 @@ export const resource = {
         //
       } catch (error) {
         //
+        await commit("accessResourceFailure", error);
         await dispatch("alert/error", "ошибка доступа к ресурсу", {
           root: true,
         });

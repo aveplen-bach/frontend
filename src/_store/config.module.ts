@@ -37,6 +37,7 @@ export const config = {
         //
       } catch (error) {
         //
+        await commit("configFailure", error);
         await dispatch("alert/error", "ошибка обновления конфигурации", {
           root: true,
         });

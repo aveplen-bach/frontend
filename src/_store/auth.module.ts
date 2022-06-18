@@ -43,8 +43,9 @@ export const auth = {
         photo,
       }: { username: string; password: string; photo: Blob }
     ) {
+      //
       commit("loginRequest");
-
+      //
       try {
         //
         await authService.login(username, password, photo);
@@ -57,6 +58,7 @@ export const auth = {
         //
       } catch (error) {
         //
+        await commit("loginFailure", error);
         await dispatch("alert/error", "ошибка аутентификации", { root: true });
         //
       }
@@ -75,9 +77,11 @@ export const auth = {
         //
       } catch (error) {
         //
+        await commit("loginFailure", error);
         await dispatch("alert/error", "ошибка завершения сессии", {
           root: true,
         });
+        router.push("/login");
         //
       }
     },
@@ -89,11 +93,10 @@ export const auth = {
       commit: Commit;
       dispatch: Dispatch;
     }) {
-      commit("loginRequest");
       try {
         //
         await authService.authenticated();
-        commit("loginSuccess");
+        await commit("loginSuccess");
         await dispatch("alert/clear", {}, { root: true });
         await dispatch("alert/success", "успешная проверка авторизации", {
           root: true,
@@ -101,6 +104,7 @@ export const auth = {
         //
       } catch (error) {
         //
+        await commit("loginFailure", error);
         await dispatch("alert/error", "ошибка проверки аутентификации", {
           root: true,
         });

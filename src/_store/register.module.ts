@@ -39,6 +39,7 @@ export const register = {
         //
       } catch (error) {
         //
+        await commit("registerFailure", error);
         await dispatch("alert/error", "ошибка регистрации", {
           root: true,
         });
