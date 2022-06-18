@@ -1,5 +1,5 @@
 import { LSAuthentication } from "@/_services/model/auth";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import { Axios, AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import {
   base64ToArrayBuffer,
   arrayBufferToBase64,
@@ -12,41 +12,31 @@ import { parseAuthentication } from "./ls-to-auth";
 import { protect, pack, unpack, unprotect } from "./token";
 
 export const patchRequest = async (config: AxiosRequestConfig) => {
-  console.log(config);
   debugger;
-
   config.url = config.url || "";
 
-  const prot = config.url.indexOf("/prot") > 0;
-  const encr = config.url.indexOf("/encr") > 0;
+  const prot = config.url.includes("/prot");
+  const encr = config.url.includes("/encr");
 
   if (!(encr || prot)) {
     return config;
   }
 
-  const authentication = localStorage.getItem("authentication");
-  if (!authentication) {
-    throw "not authenticated";
+  const authJson = localStorage.getItem("authentication");
+  if (!authJson) {
+    const err = `local storage does not contain "authentication" key`;
+    console.error(err);
+    throw err;
   }
+  localStorage.setItem("fallback", authJson);
 
-  const authp: LSAuthentication = JSON.parse(authentication);
-  const auth = await parseAuthentication(authp);
+  const authObj: LSAuthentication = JSON.parse(authJson);
+  const { key, iv } = await parseAuthentication(authObj);
 
-  authp.token.Syn.syn += authp.token.Syn.inc;
-  authp.token.Syn.inc = Math.floor(Math.random() * 1000);
+  authObj.token.Syn.syn += authObj.token.Syn.inc;
+  authObj.token.Syn.inc = Math.floor(Math.random() * 1000);
 
-  localStorage.setItem(
-    "authentication",
-    JSON.stringify({
-      username: authp.username,
-      token: authp.token,
-      key: authp.key,
-      iv: authp.iv,
-    })
-  );
-
-  const protectedd = await protect(authp.token, auth.key, auth.iv);
-  const packed = pack(protectedd);
+  const packed = pack(await protect(authObj.token, key, iv));
 
   config.headers = config.headers || {};
   config.headers = {
@@ -58,65 +48,61 @@ export const patchRequest = async (config: AxiosRequestConfig) => {
     config.data = arrayBufferToBase64(
       await encryptAesCbc(
         utf8ToArrayBuffer(JSON.stringify(config.data)),
-        auth.key,
-        auth.iv
+        key,
+        iv
       )
     );
   }
 
+  localStorage.setItem("authentication", JSON.stringify(authObj));
   return config;
 };
 
-export const patchResponse = async (response: AxiosResponse) => {
-  console.log(response);
-
+export const patchResponse200 = async (response: AxiosResponse) => {
   debugger;
-
   response.config = response.config || {};
 
   if (!response.config.url) {
-    console.error("no url in response config");
-    throw "no url in response config";
+    const err = "no url in response config";
+    console.error(err);
+    throw err;
   }
 
-  const prot = response.config.url.indexOf("/prot") > 0;
-  const encr = response.config.url.indexOf("/encr") > 0;
+  const prot = response.config.url.includes("/prot");
+  const encr = response.config.url.includes("/encr");
 
   if (!(encr || prot)) {
     return response;
   }
 
-  const authentication = localStorage.getItem("authentication");
-  if (!authentication) {
-    throw "not authenticated";
+  const authJson = localStorage.getItem("authentication");
+  if (!authJson) {
+    const err = `local storage does not contain "authentication" key`;
+    console.error(err);
+    throw err;
   }
 
-  const authp: LSAuthentication = JSON.parse(authentication);
-  const auth = await parseAuthentication(authp);
+  const authObj: LSAuthentication = JSON.parse(authJson);
+  const { key, iv } = await parseAuthentication(authObj);
 
   const next = response.data?.next;
   if (!next) {
-    throw "server did not return new token";
+    const err = "server did not return new token";
+    console.error(err);
+    fallback(err);
+    throw err;
   }
 
   const unpacked = unpack(next);
-  const unprotected = await unprotect(unpacked, auth.key, auth.iv);
+  const unprotected = await unprotect(unpacked, key, iv);
 
-  if (unprotected.Syn.syn !== authp.token.Syn.syn + authp.token.Syn.inc) {
-    throw "server returned incorrect syn";
+  if (unprotected.Syn.syn !== authObj.token.Syn.syn + authObj.token.Syn.inc) {
+    const err = "server returned incorrect syn";
+    fallback(err);
+    throw err;
   }
 
-  authp.token.Syn = unprotected.Syn;
-
-  localStorage.setItem(
-    "authentication",
-    JSON.stringify({
-      username: authp.username,
-      token: authp.token,
-      key: authp.key,
-      iv: authp.iv,
-    })
-  );
+  authObj.token.Syn = unprotected.Syn;
 
   if (prot) {
     response.data = response.data?.data;
@@ -125,14 +111,105 @@ export const patchResponse = async (response: AxiosResponse) => {
   if (encr) {
     response.data = JSON.parse(
       arrayBufferToUtf8(
+        await decryptAesCbc(base64ToArrayBuffer(response.data?.data), key, iv)
+      )
+    );
+  }
+
+  localStorage.setItem("authentication", JSON.stringify(authObj));
+  return response;
+};
+
+export const patchResponse400 = async (error: AxiosError) => {
+  debugger;
+  if (error.response?.status === 404) {
+    const err = "server returned 404";
+    console.error(err);
+    throw error;
+  }
+
+  if (!error.config.url) {
+    const err = "no url in error response config";
+    console.error(err);
+    throw err;
+  }
+
+  const prot = error.config.url.includes("/prot");
+  const encr = error.config.url.includes("/encr");
+
+  if (!(encr || prot)) {
+    const err = "nothing to do with response";
+    fallback(err);
+    throw `${err}: ${error}`;
+  }
+
+  const authJson = localStorage.getItem("authentication");
+  if (!authJson) {
+    const err = `local storage does not contain "authentication" key`;
+    console.error(err);
+    throw `${err}: ${error}`;
+  }
+
+  const authObj: LSAuthentication = JSON.parse(authJson);
+  const { key, iv } = await parseAuthentication(authObj);
+
+  const next = (error.response?.data as { next: string }).next;
+  if (!next) {
+    const err = "server did not return new token";
+    console.error(err);
+    fallback(err);
+    throw `${err}: ${error}`;
+  }
+
+  const unpacked = unpack(next);
+  const unprotected = await unprotect(unpacked, key, iv);
+
+  if (unprotected.Syn.syn !== authObj.token.Syn.syn + authObj.token.Syn.inc) {
+    const err = "server returned incorrect syn";
+    fallback(err);
+    throw `${err}: ${error}`;
+  }
+
+  authObj.token.Syn = unprotected.Syn;
+
+  if (prot && error.response) {
+    error.response.data = (
+      error.response.data as { data: string | object }
+    ).data;
+  }
+
+  if (encr && error.response) {
+    error.response.data = JSON.parse(
+      arrayBufferToUtf8(
         await decryptAesCbc(
-          base64ToArrayBuffer(response.data?.data),
-          auth.key,
-          auth.iv
+          base64ToArrayBuffer((error.response.data as { data: string }).data),
+          key,
+          iv
         )
       )
     );
   }
 
-  return response;
+  if ((error.response?.data as { err: string }).err.includes("syn")) {
+    const err = "server did not accept token";
+    fallback(err);
+    throw err;
+  }
+
+  localStorage.setItem("authentication", JSON.stringify(authObj));
+  throw (error.response?.data as { err: string }).err;
 };
+
+function fallback(cause: string | null) {
+  console.log(`falling back due to: ${cause || "unkown"}`);
+
+  debugger;
+  const fb = localStorage.getItem("fallback");
+  if (!fb) {
+    const err = `local storage does not contain "fallback" key`;
+    console.error(err);
+    throw err;
+  }
+
+  localStorage.setItem("authentication", fb);
+}

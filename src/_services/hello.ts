@@ -21,7 +21,6 @@ async function hello(
   const unpacked = unpack(helloToken);
   const raw = await unprotect(unpacked, key, iv);
 
-  debugger;
   localStorage.setItem(
     "authentication",
     JSON.stringify({

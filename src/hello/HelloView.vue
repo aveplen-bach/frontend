@@ -41,11 +41,13 @@
                 type="button"
                 class="btn btn-primary btn-lg"
                 style="padding-left: 2.5rem; padding-right: 2.5rem"
+                :style="{ disabled: isSending }"
                 @click="hello"
               >
                 Вход
               </button>
             </div>
+            <span v-if="isFailure">{{ error }}</span>
           </form>
         </div>
       </div>
@@ -55,10 +57,23 @@
 
 <script lang="ts" setup>
 import { key } from "@/_store";
-import { computed, ref } from "vue";
+import { HelloStatus } from "@/_store/hello.module";
+import { computed, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
+const router = useRouter();
 const store = useStore(key);
+
+const isSending = computed(
+  () => store.state?.hello?.status === HelloStatus.sending
+);
+const isSuccess = computed(
+  () => store.state?.hello?.status === HelloStatus.success
+);
+const isFailure = computed(
+  () => store.state?.hello?.status === HelloStatus.failure
+);
 const error = computed(() => store.state.hello?.error);
 
 const helloToken = ref("");

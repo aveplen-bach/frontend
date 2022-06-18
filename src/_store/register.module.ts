@@ -28,13 +28,11 @@ export const register = {
       commit("registerRequest");
 
       try {
-        debugger;
         await adminService.register(req);
-        commit("registerSuccess");
-        dispatch("users/getUsers", {}, { root: true });
+        await commit("registerSuccess");
+        await dispatch("users/getUsers", {}, { root: true });
       } catch (error) {
-        console.error(error);
-        commit("registerFailure", error);
+        await commit("registerFailure", "ошибка регистрации");
       }
     },
 

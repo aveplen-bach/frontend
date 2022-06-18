@@ -1,6 +1,7 @@
 import { helloService } from "@/_services/hello";
 import { useRouter } from "vue-router";
 import { Commit, Dispatch } from "vuex";
+import router from "@/_helpers/router";
 
 export enum HelloStatus {
   initial = 1,
@@ -33,20 +34,17 @@ export const hello = {
         helloIv: string;
       }
     ) {
-      const router = useRouter();
-
       commit("helloRequest");
-
       try {
-        debugger;
         const auth = await helloService.hello(helloToken, helloKey, helloIv);
-        commit("helloSuccess");
-        dispatch("auth/authenticated", {}, { root: true });
-        dispatch("auth/loginSuccess", auth, { root: true });
-        router.push("/dashboard");
+        await commit("helloSuccess");
+        await dispatch("auth/loginSuccess", auth, { root: true });
+        await router.push("/dashboard");
       } catch (error) {
-        console.error(error);
-        commit("helloFailure", error);
+        // await commit("helloFailure", error);
+        await dispatch("alert/error", "ошибка локальной авторизации", {
+          root: true,
+        });
       }
     },
 
@@ -63,12 +61,15 @@ export const hello = {
     helloReset(state: HelloState) {
       state.status = HelloStatus.initial;
     },
+
     helloRequest(state: HelloState) {
       state.status = HelloStatus.sending;
     },
+
     helloSuccess(state: HelloState) {
       state.status = HelloStatus.success;
     },
+
     helloFailure(state: HelloState, error: string) {
       state.status = HelloStatus.failure;
       state.error = error;

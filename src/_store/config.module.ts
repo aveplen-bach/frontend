@@ -1,6 +1,6 @@
 import { configService } from "@/_services/config";
 import { UpdateFacerecConfigRequest as FacerecConfigRequest } from "@/_services/model/config";
-import { Commit } from "vuex";
+import { Commit, Dispatch } from "vuex";
 
 export enum ConfigStatus {
   initial = 1,
@@ -22,17 +22,19 @@ export const config = {
 
   actions: {
     async updateFacerecConfig(
-      { commit }: { commit: Commit },
+      { commit, dispatch }: { commit: Commit; dispatch: Dispatch },
       distance: string
     ) {
-      commit("configRequest");
+      await commit("configRequest");
 
       try {
         await configService.updateFacerecConfig({ distanceStr: distance });
-        commit("configSuccess");
+        await commit("configSuccess");
       } catch (error) {
-        console.error(error);
-        commit("configFailure", error);
+        // await commit("configFailure", error);
+        await dispatch("alert/error", "ошибка обновления конфигурации", {
+          root: true,
+        });
       }
     },
 

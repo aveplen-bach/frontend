@@ -37,7 +37,6 @@ async function register(req: RegisterRequest): Promise<void> {
   }
 
   try {
-    debugger;
     await axios.post(`${config.authBaseUrl}/auth/encr/users`, {
       username: req.username,
       password: req.password,

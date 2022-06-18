@@ -68,7 +68,7 @@
 <script lang="ts" setup>
 import UsersRegister from "@/dashboard/UsersRegister.vue";
 import { key } from "@/_store";
-import { ref, onMounted, computed, Ref } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 const store = useStore(key);
 

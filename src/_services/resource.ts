@@ -6,8 +6,6 @@ export const resourceService = {
 };
 
 async function access(): Promise<boolean> {
-  debugger;
-
   try {
     const res = await axios.get(
       `${config.resourceBaseUrl}/resource/prot/authenticated`

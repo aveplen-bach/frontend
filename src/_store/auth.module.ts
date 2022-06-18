@@ -1,4 +1,5 @@
 import { parseAuthentication } from "@/_helpers/ls-to-auth";
+import router from "@/_helpers/router";
 import { authService } from "@/_services/auth";
 import { Authentication } from "@/_services/model/auth";
 import { useRouter } from "vue-router";
@@ -42,27 +43,27 @@ export const auth = {
         photo,
       }: { username: string; password: string; photo: Blob }
     ) {
-      const router = useRouter();
-
       commit("loginRequest");
 
       try {
-        /*const auth = */ await authService.login(username, password, photo);
-        dispatch("authenticated");
-        // commit("loginSuccess", auth);
+        await authService.login(username, password, photo);
+        await dispatch("authenticated");
         router.push("/protected");
       } catch (error) {
-        commit("loginFailure", error);
-        dispatch("alert/error", error, { root: true });
+        await commit("loginFailure", error);
+        await dispatch("alert/error", "ошибка аутентификации", { root: true });
       }
     },
 
     async logout({ commit, dispatch }: { commit: Commit; dispatch: Dispatch }) {
       try {
         await authService.logout();
-        commit("logout");
+        await commit("logout");
+        router.push("/login");
       } catch (error) {
-        dispatch("alert/error", error, { root: true });
+        await dispatch("alert/error", "ошибка окончания сессии", {
+          root: true,
+        });
       }
     },
 
@@ -80,7 +81,9 @@ export const auth = {
         commit("loginSuccess");
       } catch (error) {
         commit("loginFailure", error);
-        dispatch("alert/error", error, { root: true });
+        dispatch("alert/error", "ошибка проверки аутентификации", {
+          root: true,
+        });
       }
     },
 

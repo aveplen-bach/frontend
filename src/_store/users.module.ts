@@ -1,6 +1,6 @@
 import { adminService } from "@/_services/users";
 import { User } from "@/_services/model/user";
-import { Commit } from "vuex";
+import { Commit, Dispatch } from "vuex";
 import { RegisterRequest } from "@/_services/model/register";
 
 export enum UsersStatus {
@@ -22,15 +22,23 @@ export const users = {
   },
 
   actions: {
-    async getUsers({ commit }: { commit: Commit }) {
-      commit("getUsersRequest");
+    async getUsers({
+      commit,
+      dispatch,
+    }: {
+      commit: Commit;
+      dispatch: Dispatch;
+    }) {
+      await commit("getUsersRequest");
 
       try {
         const users = await adminService.getUsers();
-        commit("getUsersSuccess", users);
+        await commit("getUsersSuccess", users);
       } catch (error) {
-        console.error(error);
-        commit("getUsersFailure", error);
+        // await commit("getUsersFailure", error);
+        await dispatch("alert/error", "ошибка получения списка пользователей", {
+          root: true,
+        });
       }
     },
   },
