@@ -36,15 +36,22 @@ export const hello = {
     ) {
       commit("helloRequest");
       try {
+        //
         const auth = await helloService.hello(helloToken, helloKey, helloIv);
         await commit("helloSuccess");
         await dispatch("auth/loginSuccess", auth, { root: true });
         await router.push("/dashboard");
+        await dispatch("alert/clear", {}, { root: true });
+        await dispatch("alert/success", "успешная локальная авторизация", {
+          root: true,
+        });
+        //
       } catch (error) {
-        // await commit("helloFailure", error);
+        //
         await dispatch("alert/error", "ошибка локальной авторизации", {
           root: true,
         });
+        //
       }
     },
 

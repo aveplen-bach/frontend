@@ -28,13 +28,19 @@ export const config = {
       await commit("configRequest");
 
       try {
+        //
         await configService.updateFacerecConfig({ distanceStr: distance });
         await commit("configSuccess");
+        await dispatch("alert/success", "успешное обновление конфигурации", {
+          root: true,
+        });
+        //
       } catch (error) {
-        // await commit("configFailure", error);
+        //
         await dispatch("alert/error", "ошибка обновления конфигурации", {
           root: true,
         });
+        //
       }
     },
 

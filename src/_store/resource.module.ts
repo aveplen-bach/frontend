@@ -26,13 +26,20 @@ export const resource = {
     async access({ commit, dispatch }: { commit: Commit; dispatch: Dispatch }) {
       await commit("accessResourceRequest");
       try {
+        //
         const authenticated = await resourceService.access();
         await commit("accessResourceSuccess", authenticated);
+        await dispatch("alert/clear", {}, { root: true });
+        await dispatch("alert/success", "успешный доступ к ресурсу", {
+          root: true,
+        });
+        //
       } catch (error) {
-        // await commit("accessResourceFailure", error);
+        //
         await dispatch("alert/error", "ошибка доступа к ресурсу", {
           root: true,
         });
+        //
       }
     },
   },

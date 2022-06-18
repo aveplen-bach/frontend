@@ -46,24 +46,39 @@ export const auth = {
       commit("loginRequest");
 
       try {
+        //
         await authService.login(username, password, photo);
         await dispatch("authenticated");
+        await dispatch("alert/clear", {}, { root: true });
         router.push("/protected");
+        await dispatch("alert/success", "успешная аутентификация", {
+          root: true,
+        });
+        //
       } catch (error) {
-        await commit("loginFailure", error);
+        //
         await dispatch("alert/error", "ошибка аутентификации", { root: true });
+        //
       }
     },
 
     async logout({ commit, dispatch }: { commit: Commit; dispatch: Dispatch }) {
       try {
+        //
         await authService.logout();
         await commit("logout");
         router.push("/login");
-      } catch (error) {
-        await dispatch("alert/error", "ошибка окончания сессии", {
+        await dispatch("alert/clear", {}, { root: true });
+        await dispatch("alert/success", "успешное завершение сессии", {
           root: true,
         });
+        //
+      } catch (error) {
+        //
+        await dispatch("alert/error", "ошибка завершения сессии", {
+          root: true,
+        });
+        //
       }
     },
 
@@ -76,18 +91,29 @@ export const auth = {
     }) {
       commit("loginRequest");
       try {
+        //
         await authService.authenticated();
         commit("loginSuccess");
-      } catch (error) {
-        commit("loginFailure", error);
-        dispatch("alert/error", "ошибка проверки аутентификации", {
+        await dispatch("alert/clear", {}, { root: true });
+        await dispatch("alert/success", "успешная проверка авторизации", {
           root: true,
         });
+        //
+      } catch (error) {
+        //
+        await dispatch("alert/error", "ошибка проверки аутентификации", {
+          root: true,
+        });
+        //
       }
     },
 
-    loginSuccess({ commit }: { commit: Commit }, auth: Authentication) {
+    loginSuccess(
+      { commit, dispatch }: { commit: Commit; dispatch: Dispatch },
+      auth: Authentication
+    ) {
       commit("loginSuccess", auth);
+      dispatch("alert/clear", {}, { root: true });
     },
   },
 

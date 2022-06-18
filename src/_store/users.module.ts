@@ -32,13 +32,22 @@ export const users = {
       await commit("getUsersRequest");
 
       try {
+        //
         const users = await adminService.getUsers();
         await commit("getUsersSuccess", users);
+        await dispatch("alert/clear", {}, { root: true });
+        await dispatch(
+          "alert/success",
+          "успешное получение списка пользователей",
+          { root: true }
+        );
+        //
       } catch (error) {
-        // await commit("getUsersFailure", error);
+        //
         await dispatch("alert/error", "ошибка получения списка пользователей", {
           root: true,
         });
+        //
       }
     },
   },
