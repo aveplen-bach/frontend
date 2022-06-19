@@ -65,6 +65,23 @@
                 />
               </div>
 
+              <select
+                class="form-select"
+                aria-label="Default select example"
+                @change="changeDevice"
+                v-model="k"
+              >
+                <option selected>Open this select menu</option>
+                <option
+                  v-for="d in nonBlankDevices"
+                  :key="d.deviceId"
+                  :value="d.label"
+                  :style="{ selected: d.deviceId == device }"
+                >
+                  {{ d.label }}
+                </option>
+              </select>
+
               <label class="form-label"></label>
               <div class="text-center">
                 <button
@@ -90,7 +107,7 @@
 <script lang="ts">
 import { key } from "@/_store";
 import Camera from "simple-vue-camera";
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 
 export default defineComponent({
@@ -103,6 +120,31 @@ export default defineComponent({
     };
 
     const camera = ref<InstanceType<typeof Camera>>();
+    const devices = ref<MediaDeviceInfo[]>([]);
+    const device = ref(camera.value?.currentDeviceID);
+    const k = ref("");
+
+    const nonBlankDevices = computed(() =>
+      devices.value.filter((d) => d.label != "")
+    );
+
+    onMounted(() => {
+      navigator.mediaDevices.enumerateDevices().then((ds) => {
+        ds.forEach((d) => {
+          devices.value.push(d);
+        });
+      });
+    });
+
+    const changeDevice = (event: any) => {
+      for (let test of devices.value) {
+        if (test.label === event.target.value) {
+          camera.value?.changeCamera(test.deviceId);
+          return;
+        }
+      }
+    };
+
     const username = ref("");
     const password = ref("");
     const login = async () => {
@@ -136,6 +178,11 @@ export default defineComponent({
       password,
       cameraStarted,
       provided,
+      devices,
+      device,
+      nonBlankDevices,
+      changeDevice,
+      k,
       //   error,
     };
   },
